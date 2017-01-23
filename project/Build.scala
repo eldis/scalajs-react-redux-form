@@ -2,8 +2,8 @@ import sbt._
 import Keys._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-// import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
-// import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 
 object ScalaJSReactReduxForm {
   object Versions {
@@ -11,11 +11,15 @@ object ScalaJSReactReduxForm {
     val scalaTest = "3.0.1"
     val scalaJsReact = "0.11.3"
     val scalaJsRedux = "0.0.1-SNAPSHOT"
+
+    val react = ">=15.4.2"
+    val redux = ">=3.6.0"
   }
 
   object Dependencies {
     lazy val scalaTest = "org.scalatest" %%%! "scalatest" % Versions.scalaTest % "test"
     lazy val scalaJsRedux = "com.github.eldis" %%%! "scalajs-redux" % Versions.scalaJsRedux
+    lazy val scalaJsReact = "com.github.japgolly.scalajs-react" %%%! "core" % Versions.scalaJsReact
   }
 
   object Settings {
@@ -23,15 +27,17 @@ object ScalaJSReactReduxForm {
 
     def commonProject: PC =
       _.settings(
-        scalaVersion := Versions.scala,
         organization := "com.github.eldis",
         organizationName := "Eldis-Soft, ZAO"
       )
 
-    def scalajsProject: PC =
+    def usesScalaJS: PC =
       _.enablePlugins(ScalaJSPlugin)
 
-    def sonatypeResolver: PC =
+    def usesScalaJSBundler: PC =
+      _.enablePlugins(ScalaJSBundlerPlugin)
+
+    def usesSonatype: PC =
       _.settings(
         resolvers ++= Seq(
           Resolver.sonatypeRepo("public"),
@@ -44,15 +50,24 @@ object ScalaJSReactReduxForm {
     lazy val root = project.in(file("."))
       .configure(
         Settings.commonProject,
-        Settings.scalajsProject,
-        Settings.sonatypeResolver
+        Settings.usesScalaJS,
+        Settings.usesScalaJSBundler,
+        Settings.usesSonatype
       ).settings(
         name := "scalajs-react-redux-form",
 
         libraryDependencies ++= Seq(
+          Dependencies.scalaJsReact,
           Dependencies.scalaJsRedux,
           Dependencies.scalaTest
-        )
+        ),
+
+        npmDevDependencies in Test ++= Seq(
+          "react" -> Versions.react
+        ),
+
+        unmanagedResourceDirectories in Test +=
+          (sourceDirectory in Test).value / "javascript"
       )
   }
 }
