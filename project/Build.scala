@@ -9,6 +9,7 @@ object ScalaJSReactReduxForm {
   object Versions {
     val scala = "2.11.8"
     val scalaJsReact = "0.11.3"
+    val scalaJsRedux = "0.2.0-SNAPSHOT"
 
     val scalatest = "3.0.1"
   }
@@ -25,13 +26,16 @@ object ScalaJSReactReduxForm {
   object Dependencies {
     lazy val scalaJsReact = "com.github.japgolly.scalajs-react" %%%! "core" % Versions.scalaJsReact
 
+    lazy val scalaJsRedux = "com.github.eldis" %%%! "scalajs-redux" % Versions.scalaJsRedux
+
     lazy val scalatest = "org.scalatest" %%%! "scalatest" % Versions.scalatest % "test"
 
-    lazy val jsReactRedux = Seq(
+    lazy val jsReactReduxForm = Seq(
       "react" -> JsVersions.react,
       "react-dom" -> JsVersions.react,
       "redux" -> JsVersions.redux,
-      "react-redux" -> JsVersions.reactRedux
+      "react-redux" -> JsVersions.reactRedux,
+      "react-redux-form" -> JsVersions.reactReduxForm
     )
   }
 
@@ -63,11 +67,14 @@ object ScalaJSReactReduxForm {
 
     def react(dev: Boolean = false): PC =
       _.settings(
-        libraryDependencies += Dependencies.scalaJsReact,
+        libraryDependencies ++= Seq(
+          Dependencies.scalaJsReact,
+          Dependencies.scalaJsRedux
+        ),
         if(dev)
-          npmDevDependencies in Compile ++= Dependencies.jsReactRedux
+          npmDevDependencies in Compile ++= Dependencies.jsReactReduxForm
         else
-          npmDependencies in Compile ++= Dependencies.jsReactRedux
+          npmDependencies in Compile ++= Dependencies.jsReactReduxForm
       )
 
     def exampleProject(prjName: String, useReact: Boolean = false): PC = { p: Project =>
