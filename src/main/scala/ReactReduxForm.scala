@@ -15,13 +15,16 @@ private[rrf] object ReactReduxForm {
     // We can't use js.Dynamic if RRFState will be js.Object
     type RRFState = js.Any
     type RRFAction = js.Object
+    type RRFModel = String | js.Function
 
     def modelReducer(model: String, initialState: js.Any): Reducer[RRFState, RRFAction] = js.native
     def formReducer(model: String, initialState: js.Any): Reducer[RRFState, RRFAction] = js.native
 
     @js.native
     object actions extends js.Object {
-      def change(model: String | js.Function, value: js.Any, options: js.UndefOr[js.Object] = js.undefined): RRFAction = js.native
+      def change(model: RRFModel, value: js.Any, options: js.UndefOr[js.Object] = js.undefined): RRFAction = js.native
+      def reset(model: RRFModel): RRFAction = js.native
+      def load(model: RRFModel, value: js.Any): RRFAction = js.native
     }
   }
 

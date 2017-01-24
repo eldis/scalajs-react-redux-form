@@ -119,6 +119,14 @@ object ScalaJSReactReduxForm {
       .settings(
         name := "scalajs-react-redux-form"
       )
+
+    lazy val exRaw = project
+      .configure(
+        Settings.exampleProject(
+          "raw",
+          useReact = true)
+      )
+      .dependsOn(scalaJsReactReduxForm)
   }
 }
 
