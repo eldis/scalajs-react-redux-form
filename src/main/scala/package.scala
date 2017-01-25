@@ -9,4 +9,6 @@ package object rrf {
 
   val Form = ReactReduxForm.Form
 
+  val Control = ReactReduxForm.Control
+
 }

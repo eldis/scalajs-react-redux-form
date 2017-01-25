@@ -3,19 +3,22 @@ package eldis.redux.rrf.examples.raw
 import scalajs.js
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
-import eldis.redux.rrf
+import eldis.redux.rrf._
 
 object UserForm {
 
   val initialState = js.Dynamic.literal(
-    login = "",
+    user = "test",
     pass = ""
   )
 
-  val component = ReactComponentB[Unit]("Form")
+  val component = ReactComponentB[Unit]("UserForm")
     .render { scope =>
-      rrf.Form(rrf.Form.Props("testForm"))(
-        <.p()("Hello, world!")
+      Form(Form.Props("testForm"))(
+        <.label()("Username:"),
+        Control(Control.Props(".user")),
+        <.label()("Password:"),
+        Control(Control.Props(".pass", `type` = "password"))
       )
     }.build
 

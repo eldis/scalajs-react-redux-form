@@ -48,8 +48,9 @@ object Main extends js.JSApp {
     Dependencies.setup
 
     val store = createStore(
-      impl.combineForms(js.Dynamic.literal(testForm = UserForm.initialState)),
+      (s: js.Any, a: js.Any) => s,
       js.undefined,
+      impl.combineForms(js.Dynamic.literal(testForm = UserForm.initialState)),
       applyMiddleware(Seq(createLogger()))
     )
 
