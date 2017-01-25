@@ -1,7 +1,13 @@
 package eldis.redux.rrf.examples.raw
 
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.prefix_<^._
 import scalajs.js
+import org.scalajs.dom
 import js.annotation._
+import eldis.redux._
+import rrf.impl
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main extends js.JSApp {
 
@@ -25,10 +31,29 @@ object Main extends js.JSApp {
     }
   }
 
+  def App(store: Store[js.Any, impl.Action]): ReactElement = {
+    val form = UserForm()
+    react.Provider(store)(
+      form
+    )
+  }
+
+  @JSImport("redux-logger", JSImport.Namespace)
+  @js.native
+  object createLogger extends js.Object {
+    def apply(): Middleware[js.Any, impl.Action] = js.native
+  }
+
   def main(): Unit = {
     Dependencies.setup
 
-    println("Hello, world!")
+    val store = createStore(
+      impl.combineForms(js.Dynamic.literal(testForm = UserForm.initialState)),
+      js.undefined,
+      applyMiddleware(Seq(createLogger()))
+    )
+
+    ReactDOM.render(App(store), dom.document.getElementById("root"))
   }
 
 }

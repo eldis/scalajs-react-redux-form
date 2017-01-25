@@ -5,4 +5,8 @@ package eldis.redux
  */
 package object rrf {
 
+  val impl = ReactReduxForm.Impl
+
+  val Form = ReactReduxForm.Form
+
 }

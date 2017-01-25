@@ -22,6 +22,7 @@ object ScalaJSReactReduxForm {
     val redux = "~3.6.0"
     val reactRedux = "~5.0.2"
     val reactReduxForm = "~1.5.3"
+    val reduxLogger = "~2.7.4"
   }
   object Dependencies {
     lazy val scalaJsReact = "com.github.japgolly.scalajs-react" %%%! "core" % Versions.scalaJsReact
@@ -37,6 +38,8 @@ object ScalaJSReactReduxForm {
       "react-redux" -> JsVersions.reactRedux,
       "react-redux-form" -> JsVersions.reactReduxForm
     )
+
+    lazy val jsReduxLogger = "redux-logger" -> JsVersions.reduxLogger
   }
 
   object Settings {
@@ -89,7 +92,9 @@ object ScalaJSReactReduxForm {
           ),
 
           webpackConfigFile in fastOptJS := Some(baseDirectory.value / "config" / "webpack.config.js"),
-          webpackConfigFile in fullOptJS := Some(baseDirectory.value / "config" / "webpack.config.js")
+          webpackConfigFile in fullOptJS := Some(baseDirectory.value / "config" / "webpack.config.js"),
+
+          npmDependencies in Compile += Dependencies.jsReduxLogger
         )
       } compose { pc =>
         if(useReact)
