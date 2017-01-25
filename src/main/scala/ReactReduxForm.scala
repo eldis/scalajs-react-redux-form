@@ -94,15 +94,18 @@ private[rrf] object ReactReduxForm {
       trait Props extends js.Object {
         val model: Model = js.native
         val `type`: js.UndefOr[String] = js.native
+        val component: js.UndefOr[ReactClass[_, _, _, _]] = js.native
       }
 
       object Props {
         def apply(
           model: Model,
-          `type`: js.UndefOr[String]
+          `type`: js.UndefOr[String] = js.undefined,
+          component: js.UndefOr[ReactClass[_, _, _, _]] = js.undefined
         ) = js.Dynamic.literal(
           model = model.asInstanceOf[js.Any],
-          `type` = `type`
+          `type` = `type`,
+          component = component
         ).asInstanceOf[Props]
       }
 
@@ -114,7 +117,8 @@ private[rrf] object ReactReduxForm {
 
     case class Props(
       model: Model,
-      `type`: js.UndefOr[String] = js.undefined
+      `type`: js.UndefOr[String] = js.undefined,
+      component: js.UndefOr[ReactClass[_, _, _, _]] = js.undefined
     )
 
     val component = React.createFactory(ControlImpl.JSControl)
@@ -122,7 +126,8 @@ private[rrf] object ReactReduxForm {
     def apply(props: Props) = component(
       ControlImpl.Props(
         model = props.model,
-        `type` = props.`type`
+        `type` = props.`type`,
+        component = props.component
       )
     )
   }

@@ -16,7 +16,7 @@ object UserForm {
     .render { scope =>
       Form(Form.Props("testForm"))(
         <.label()("Username:"),
-        Control(Control.Props(".user")),
+        Control(Control.Props(".user", component = CustomInput.component.reactClass)),
         <.label()("Password:"),
         Control(Control.Props(".pass", `type` = "password"))
       )
