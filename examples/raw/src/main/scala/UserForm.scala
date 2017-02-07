@@ -1,8 +1,8 @@
 package eldis.redux.rrf.examples.raw
 
 import scalajs.js
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.prefix_<^._
+import eldis.react._
+import vdom.prefix_<^._
 import eldis.redux.rrf._
 
 object UserForm {
@@ -12,16 +12,14 @@ object UserForm {
     pass = ""
   )
 
-  val component = ReactComponentB[Unit]("UserForm")
-    .render { scope =>
-      Form(Form.Props("testForm"))(
-        <.label()("Username:"),
-        Control(Control.Props(".user", component = CustomInput.component)),
-        <.label()("Password:"),
-        Control(Control.Props(".pass", `type` = "password"))
-      )
-    }.build
-
-  def apply() = component()
+  val component = FunctionalComponent[String]("UserForm") { _ =>
+    Form(Form.Props("testForm"))(
+      <.label()("Username:"),
+      Control(Control.Props(".user", component = CustomInput.component)),
+      <.label()("Password:"),
+      Control(Control.Props(".pass", `type` = "password"))
+    )
+  }
+  def apply(): ReactDOMElement = React.createElement(component, "")
 
 }
