@@ -17,7 +17,7 @@ private[rrf] object ReactReduxForm {
     // We can't use js.Dynamic if RRFState will be js.Object
     type State = js.Any
     type Action = js.Object
-    type Model = String | js.Function
+    type Model = String | js.Function1[State, String]
     type SubmitHandler = js.Function1[js.Any, Unit]
 
     def combineForms(forms: js.Object, model: String = "", options: js.UndefOr[js.Object] = js.undefined): Reducer[State, Action] = js.native
