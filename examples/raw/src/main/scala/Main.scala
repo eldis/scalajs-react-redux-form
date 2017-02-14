@@ -3,11 +3,15 @@ package eldis.redux.rrf.examples.raw
 import scalajs.js
 import org.scalajs.dom
 import js.annotation._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import eldis.react._
 import compat._
+
 import eldis.redux._
-import rrf.impl
-import scala.concurrent.ExecutionContext.Implicits.global
+import eldis.redux.react.{ eldis => react }
+
+import eldis.redux.rrf.impl
 
 object Main extends js.JSApp {
 

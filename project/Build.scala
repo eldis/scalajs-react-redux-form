@@ -9,7 +9,7 @@ object ScalaJSReactReduxForm {
   object Versions {
     val scala = "2.11.8"
     val scalaJsReact = "0.1.0-SNAPSHOT"
-    val scalaJsRedux = "0.2.0-SNAPSHOT"
+    val scalaJsRedux = "0.3.0-SNAPSHOT"
 
     val scalatest = "3.0.1"
   }
@@ -28,7 +28,7 @@ object ScalaJSReactReduxForm {
     lazy val scalaJsReact = "com.github.eldis" %%%! "scalajs-react" % Versions.scalaJsReact
     lazy val scalaJsReactCompat = "com.github.eldis" %%%! "scalajs-react-compat" % Versions.scalaJsReact
 
-    lazy val scalaJsRedux = "com.github.eldis" %%%! "scalajs-redux" % Versions.scalaJsRedux
+    lazy val scalaJsRedux = "com.github.eldis" %%%! "scalajs-redux-react-eldis" % Versions.scalaJsRedux
 
     lazy val scalatest = "org.scalatest" %%%! "scalatest" % Versions.scalatest % "test"
 
