@@ -8,8 +8,8 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 object ScalaJSReactReduxForm {
   object Versions {
     val scala = "2.11.8"
-    val scalaJsReact = "0.11.3"
-    val scalaJsRedux = "0.2.0-SNAPSHOT"
+    val scalaJsReact = "0.1.0-SNAPSHOT"
+    val scalaJsRedux = "0.3.0-SNAPSHOT"
 
     val scalatest = "3.0.1"
   }
@@ -25,9 +25,10 @@ object ScalaJSReactReduxForm {
     val reduxLogger = "~2.7.4"
   }
   object Dependencies {
-    lazy val scalaJsReact = "com.github.japgolly.scalajs-react" %%%! "core" % Versions.scalaJsReact
+    lazy val scalaJsReact = "com.github.eldis" %%%! "scalajs-react" % Versions.scalaJsReact
+    lazy val scalaJsReactCompat = "com.github.eldis" %%%! "scalajs-react-compat" % Versions.scalaJsReact
 
-    lazy val scalaJsRedux = "com.github.eldis" %%%! "scalajs-redux" % Versions.scalaJsRedux
+    lazy val scalaJsRedux = "com.github.eldis" %%%! "scalajs-redux-react-eldis" % Versions.scalaJsRedux
 
     lazy val scalatest = "org.scalatest" %%%! "scalatest" % Versions.scalatest % "test"
 
@@ -72,6 +73,7 @@ object ScalaJSReactReduxForm {
       _.settings(
         libraryDependencies ++= Seq(
           Dependencies.scalaJsReact,
+          Dependencies.scalaJsReactCompat,
           Dependencies.scalaJsRedux
         ),
         if(dev)
@@ -82,7 +84,7 @@ object ScalaJSReactReduxForm {
 
     def exampleProject(prjName: String, useReact: Boolean = false): PC = { p: Project =>
       p.in(file("examples") / prjName)
-        .configure(scalajsProject, jsBundler)
+        .configure(scalajsProject, jsBundler, react())
         .settings(
           name := prjName,
 
@@ -96,11 +98,6 @@ object ScalaJSReactReduxForm {
 
           npmDependencies in Compile += Dependencies.jsReduxLogger
         )
-      } compose { pc =>
-        if(useReact)
-          pc.configure(react())
-        else
-          pc
       }
 
     def publish: PC =
@@ -127,9 +124,7 @@ object ScalaJSReactReduxForm {
 
     lazy val exRaw = project
       .configure(
-        Settings.exampleProject(
-          "raw",
-          useReact = true)
+        Settings.exampleProject("raw")
       )
       .dependsOn(scalaJsReactReduxForm)
   }

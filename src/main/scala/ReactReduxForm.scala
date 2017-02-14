@@ -1,7 +1,6 @@
 package eldis.redux.rrf
 
-import japgolly.scalajs.react._
-import org.scalajs.dom.raw.HTMLElement
+import eldis.react._
 import scala.scalajs.js
 import js.annotation._
 import js.JSConverters._
@@ -18,7 +17,7 @@ private[rrf] object ReactReduxForm {
     // We can't use js.Dynamic if RRFState will be js.Object
     type State = js.Any
     type Action = js.Object
-    type Model = String | js.Function
+    type Model = String | js.Function1[State, String]
     type SubmitHandler = js.Function1[js.Any, Unit]
 
     def combineForms(forms: js.Object, model: String = "", options: js.UndefOr[js.Object] = js.undefined): Reducer[State, Action] = js.native
@@ -64,7 +63,7 @@ private[rrf] object ReactReduxForm {
 
       @JSImport("react-redux-form", "Form")
       @js.native
-      object JSForm extends JsComponentType[Props, js.Any, HTMLElement]
+      object JSForm extends JSComponent[Props]
 
     }
 
@@ -73,15 +72,12 @@ private[rrf] object ReactReduxForm {
       onSubmit: Option[js.Any => Unit] = None
     )
 
-    val component = React.createFactory(FormImpl.JSForm)
-
-    def apply(props: Props)(ch: ReactNode*) = {
-      component(
+    def apply(props: Props)(ch: ReactNode*) =
+      React.createElement(
+        FormImpl.JSForm,
         FormImpl.Props(props.model, props.onSubmit.map(f => f: js.Function1[js.Any, Unit]).orUndefined),
         ch: _*
       )
-    }
-
   }
 
   object Control {
@@ -94,14 +90,14 @@ private[rrf] object ReactReduxForm {
       trait Props extends js.Object {
         val model: Model = js.native
         val `type`: js.UndefOr[String] = js.native
-        val component: js.UndefOr[ReactClass[_, _, _, _]] = js.native
+        val component: js.UndefOr[js.Any] = js.native
       }
 
       object Props {
         def apply(
           model: Model,
           `type`: js.UndefOr[String] = js.undefined,
-          component: js.UndefOr[js.Function] = js.undefined
+          component: js.UndefOr[js.Any] = js.undefined
         ) = js.Dynamic.literal(
           model = model.asInstanceOf[js.Any],
           `type` = `type`,
@@ -111,25 +107,25 @@ private[rrf] object ReactReduxForm {
 
       @JSImport("react-redux-form", "Control")
       @js.native
-      object JSControl extends JsComponentType[Props, js.Any, HTMLElement]
+      object JSControl extends JSComponent[Props]
 
     }
 
     case class Props(
       model: Model,
       `type`: js.UndefOr[String] = js.undefined,
-      component: js.UndefOr[js.Function] = js.undefined
+      component: js.UndefOr[js.Any] = js.undefined
     )
 
-    val component = React.createFactory(ControlImpl.JSControl)
-
-    def apply(props: Props) = component(
-      ControlImpl.Props(
-        model = props.model,
-        `type` = props.`type`,
-        component = props.component
+    def apply(props: Props) =
+      React.createElement(
+        ControlImpl.JSControl,
+        ControlImpl.Props(
+          model = props.model,
+          `type` = props.`type`,
+          component = props.component
+        )
       )
-    )
   }
 
 }
