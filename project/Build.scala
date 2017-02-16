@@ -132,6 +132,12 @@ object ScalaJSReactReduxForm {
         Settings.exampleProject("raw")
       )
       .dependsOn(scalaJsReactReduxForm)
+
+    lazy val exTyped = project
+      .configure(
+        Settings.exampleProject("typed")
+      )
+      .dependsOn(scalaJsReactReduxForm)
   }
 }
 

@@ -20,11 +20,11 @@ private[rrf] object ReactReduxForm {
     type Model = String | js.Function1[State, String]
     type SubmitHandler = js.Function1[js.Any, Unit]
 
-    def combineForms(forms: js.Object, model: String = "", options: js.UndefOr[js.Object] = js.undefined): Reducer[State, Action] = js.native
+    def combineForms(forms: js.Object, model: js.UndefOr[String] = js.undefined, options: js.UndefOr[js.Object] = js.undefined): Reducer[State, Action] = js.native
 
     def modelReducer(model: String, initialState: js.Any): Reducer[State, Action] = js.native
 
-    def formReducer(model: String, initialState: js.Any): Reducer[State, Action] = js.native
+    def formReducer(model: String, initialState: js.Any, options: js.UndefOr[js.Object] = js.undefined): Reducer[State, Action] = js.native
 
     @js.native
     object actions extends js.Object {

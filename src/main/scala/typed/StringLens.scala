@@ -35,7 +35,6 @@ object StringLens {
   @inline
   def self[A]: StringLens[A, A] = StringLens[A, A]("")
 
-  @inline
   def applyLens[A, B](f: StringLens[A, B], a: A): B =
     if ("" == f) {
       a.asInstanceOf[B]
@@ -46,7 +45,7 @@ object StringLens {
       ).asInstanceOf[B]
     }
 
-  //@inline
+  @inline
   def compose[A, B, C](f: StringLens[B, C], g: StringLens[A, B]): StringLens[A, C] =
     apply[A, C](combinePaths(run(g), run(f)))
 

@@ -52,6 +52,10 @@ object ModelLens {
         f(a)
     }
 
+  @inline
+  def toRawModel[A](f: ModelLens[A, _]): raw.Model =
+    f.asInstanceOf[raw.Model]
+
   def compose[A, B, C](f: ModelLens[B, C], g: ModelLens[A, B]): ModelLens[A, C] =
     // TODO: use some better combination here?
     (f, g) match {
@@ -79,7 +83,6 @@ object ModelLens {
     def apply[A, B](sl: StringLens[A, B]): ModelLens[A, B] =
       sl.asInstanceOf[ModelLens[A, B]]
 
-    @inline
     def unapply[A, B](m: ModelLens[A, B]): Option[StringLens[A, B]] =
       if (m.isInstanceOf[String]) {
         Some(m.asInstanceOf[StringLens[A, B]])
@@ -96,7 +99,6 @@ object ModelLens {
     def apply[A, B](f: BaseType[A, B]) =
       f.asInstanceOf[ModelLens[A, B]]
 
-    @inline
     def unapply[A, B](m: ModelLens[A, B]): Option[BaseType[A, B]] =
       if (m.asInstanceOf[Any].isInstanceOf[String]) {
         None
