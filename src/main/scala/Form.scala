@@ -15,6 +15,8 @@ object Form {
     onSubmit: Option[S2 => Unit] = None
   )
 
+  // TODO: No model context is enforced for children! is there a way
+  // to make this type-safe?
   def apply[S1, S2](props: Props[S1, S2])(ch: ReactNode*) =
     React.createElement(
       RawFormImpl.JSForm,

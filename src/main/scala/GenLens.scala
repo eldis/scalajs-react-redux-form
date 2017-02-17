@@ -7,7 +7,7 @@ import scala.language.experimental.macros
 
 final class GenLens[A] {
   @inline
-  def apply[B](f: A => B): StringLens[A, B] = macro Macros.genLensImpl[A, B]
+  def apply[B](f: A => B): StringLens[A, B] = macro GenLensMacros.genLensImpl[A, B]
 }
 
 object GenLens {
@@ -22,20 +22,21 @@ object GenLens {
    * case class Bar(foo: Foo)
    *
    * // These are identical
-   * val sl1 = StringLens[Bar, Int]("foo.x")
+   * val sl1 = StringLens[Bar, Int](".foo.x")
    * // But this is a bit shorter and safer
    * val sl2 = GenLens[Bar](_.foo.x)
    *
    * }}}
    *
    * The function must be in shape "_.foo.bar.baz"
+   * Currently only partial models are supported.
    *
    */
   @inline
   def apply[A] = new GenLens[A]()
 }
 
-object Macros {
+object GenLensMacros {
 
   def genLensImpl[A, B](
     c: Context
@@ -73,6 +74,6 @@ object Macros {
     }
 
     // TODO: Empty path leads to empty string - is this OK?
-    worker(body).reverse.mkString(".")
+    "." + worker(body).reverse.mkString(".")
   }
 }

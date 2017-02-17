@@ -17,10 +17,10 @@ class GenLensSpec extends FunSpec with Matchers {
       import f._
 
       val xL = GenLens[Foo](_.x)
-      runSL(xL) shouldBe "x"
+      runSL(xL) shouldBe ".x"
 
       val fooxL = GenLens[Bar](_.foo.x)
-      runSL(fooxL) shouldBe "foo.x"
+      runSL(fooxL) shouldBe ".foo.x"
     }
   }
 }
