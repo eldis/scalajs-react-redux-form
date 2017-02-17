@@ -3,7 +3,7 @@ package eldis.redux.rrf.examples.raw
 import scalajs.js
 import eldis.react._
 import vdom.prefix_<^._
-import eldis.redux.rrf._
+import eldis.redux.rrf.raw._
 
 object UserForm {
 

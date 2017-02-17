@@ -1,4 +1,4 @@
-package eldis.redux.rrf.typed
+package eldis.redux.rrf
 
 import org.scalatest._
 import scalajs.js

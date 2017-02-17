@@ -1,11 +1,10 @@
-package eldis.redux.rrf.typed
+package eldis.redux.rrf
 
 import scala.scalajs.js
 import js.JSConverters._
 
 import eldis.react.React
 
-import eldis.redux.{ rrf => raw }
 import raw.Control.{ ControlImpl => RawControlImpl }
 
 object Control {

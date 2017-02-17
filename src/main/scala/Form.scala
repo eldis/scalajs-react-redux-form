@@ -1,13 +1,12 @@
-package eldis.redux.rrf.typed
+package eldis.redux.rrf
 
 import scala.scalajs.js
 import js.annotation.JSImport
 import js.JSConverters._
 
-import eldis.redux.{ rrf => raw }
 import eldis.react.{ React, ReactNode, RawComponent, JSComponent }
 
-import eldis.redux.rrf.Form.{ FormImpl => RawFormImpl }
+import eldis.redux.rrf.raw.Form.{ FormImpl => RawFormImpl }
 
 object Form {
 

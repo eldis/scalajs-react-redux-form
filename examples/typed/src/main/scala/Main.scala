@@ -10,7 +10,7 @@ import eldis.react._
 import eldis.redux._
 import eldis.redux.react.{ eldis => react }
 
-import eldis.redux.rrf.typed.{ combineForms, Forms, StringLens }
+import eldis.redux.rrf.{ combineForms, Forms, StringLens }
 
 object Main extends js.JSApp {
 

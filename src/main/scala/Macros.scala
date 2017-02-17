@@ -1,4 +1,4 @@
-package eldis.redux.rrf.typed
+package eldis.redux.rrf
 
 import scala.reflect.macros.Context
 import scala.language.experimental.macros

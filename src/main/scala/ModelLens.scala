@@ -1,10 +1,8 @@
-package eldis.redux.rrf.typed
+package eldis.redux.rrf
 
 import scala.scalajs.js
 import js.|
 import js.annotation._
-
-import eldis.redux.rrf.{ impl => raw }
 
 /**
  * Lens-like abstraction for form virtual DOM.
@@ -53,8 +51,8 @@ object ModelLens {
     }
 
   @inline
-  def toRawModel[A](f: ModelLens[A, _]): raw.Model =
-    f.asInstanceOf[raw.Model]
+  def toRawModel[A](f: ModelLens[A, _]): raw.impl.Model =
+    f.asInstanceOf[raw.impl.Model]
 
   def compose[A, B, C](f: ModelLens[B, C], g: ModelLens[A, B]): ModelLens[A, C] =
     // TODO: use some better combination here?

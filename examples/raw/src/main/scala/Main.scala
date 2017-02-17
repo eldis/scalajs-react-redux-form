@@ -11,7 +11,7 @@ import compat._
 import eldis.redux._
 import eldis.redux.react.{ eldis => react }
 
-import eldis.redux.rrf.impl
+import eldis.redux.rrf.raw.impl
 
 object Main extends js.JSApp {
 

@@ -1,10 +1,8 @@
-package eldis.redux.rrf.typed
+package eldis.redux.rrf
 
 import scala.scalajs.js
 import js.|
 import js.annotation._
-
-import eldis.redux.rrf.{ impl => raw }
 
 /**
  * Lens-like abstraction for combining reducers.

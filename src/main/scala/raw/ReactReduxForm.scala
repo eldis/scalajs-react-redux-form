@@ -1,4 +1,4 @@
-package eldis.redux.rrf
+package eldis.redux.rrf.raw
 
 import eldis.react._
 import scala.scalajs.js
@@ -8,7 +8,7 @@ import js.|
 
 import eldis.redux._
 
-private[rrf] object ReactReduxForm {
+private[raw] object ReactReduxForm {
 
   @JSImport("react-redux-form", JSImport.Namespace)
   @js.native

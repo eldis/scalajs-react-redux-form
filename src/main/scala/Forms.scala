@@ -1,4 +1,4 @@
-package eldis.redux.rrf.typed
+package eldis.redux.rrf
 
 import scala.scalajs.js
 import eldis.redux

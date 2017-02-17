@@ -3,7 +3,7 @@ package eldis.redux.rrf.examples.typed
 import scalajs.js
 import eldis.react._
 import vdom.prefix_<^._
-import eldis.redux.rrf.typed._
+import eldis.redux.rrf._
 
 object UserForm {
 
@@ -24,7 +24,8 @@ object UserForm {
     ))(
       <.label()("Username:"),
       Control(Control.Props(
-        StringLens[UserForm.State, String](".user"),
+        // Create lens manually
+        GenLens[UserForm.State](_.user),
         component = Some(CustomInput.component)
       )),
       <.label()("Password:"),

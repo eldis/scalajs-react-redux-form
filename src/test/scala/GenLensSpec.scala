@@ -1,12 +1,12 @@
 package eldis.redux.rrf.typed.macros
-// Can't have this in `typed` - we want to make sure we don't import StringLens
+// Can't have this in `rrf` - we want to make sure we don't import StringLens
 
 import org.scalatest._
 import scalajs.js
 
-import eldis.redux.rrf.typed
-import typed.GenLens
-import typed.StringLens.{ run => runSL }
+import eldis.redux.rrf
+import rrf.GenLens
+import rrf.StringLens.{ run => runSL }
 
 class GenLensSpec extends FunSpec with Matchers {
 
