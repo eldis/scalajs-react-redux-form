@@ -12,7 +12,7 @@ final class GenLens[A] {
 
 object GenLens {
   /**
-   * Generate a [[eldis.redux.rrf.typed.StringLens]] for a path in object.
+   * Generate a [[StringLens]] for a path in object.
    *
    * for example:
    *

@@ -12,8 +12,8 @@ import js.annotation._
  * and combinators. Uses a "phantom" trait to avoid confusion with
  * plain strings/functions.
  *
- * Provides case-class-like API for this structure - see [[StringML]],
- * [[FunctionML]]
+ * Provides case-class-like API for this structure - see [[ModelLens.StringML]],
+ * [[ModelLens.FunctionML]]
  */
 @js.native
 sealed trait ModelLens[A, B] extends js.Any
@@ -82,7 +82,7 @@ object ModelLens {
       sl.asInstanceOf[ModelLens[A, B]]
 
     def unapply[A, B](m: ModelLens[A, B]): Option[StringLens[A, B]] =
-      if (m.isInstanceOf[String]) {
+      if (m.asInstanceOf[Any].isInstanceOf[String]) {
         Some(m.asInstanceOf[StringLens[A, B]])
       } else {
         None
