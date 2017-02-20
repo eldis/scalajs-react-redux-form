@@ -1,16 +1,17 @@
 package eldis.redux.rrf.examples.typed
 
 import scalajs.js
+import js.annotation.ScalaJSDefined
 import eldis.react._
 import vdom._
 import prefix_<^._
 
 object CustomInput {
 
-  @js.native
+  @ScalaJSDefined
   trait Props extends js.Object {
-    val value: js.UndefOr[String] = js.native
-    val onChange: js.UndefOr[js.Function1[ReactEventI, Unit]] = js.native
+    val value: js.UndefOr[String] = js.undefined
+    val onChange: js.UndefOr[js.Function1[ReactEventI, Unit]] = js.undefined
   }
 
   val component = NativeFunctionalComponent[Props]("CustomInput") { props =>

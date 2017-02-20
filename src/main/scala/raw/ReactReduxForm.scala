@@ -45,20 +45,24 @@ private[raw] object ReactReduxForm {
 
     object FormImpl {
 
-      @js.native
+      @ScalaJSDefined
       trait Props extends js.Object {
-        val model: Model = js.native
-        val onSubmit: js.UndefOr[SubmitHandler] = js.native
+        val model: Model
+        val onSubmit: js.UndefOr[SubmitHandler] = js.undefined
       }
 
       object Props {
         def apply(
           model: Model,
           onSubmit: js.UndefOr[SubmitHandler] = js.undefined
-        ) = js.Dynamic.literal(
-          model = model.asInstanceOf[js.Any],
-          onSubmit = onSubmit
-        ).asInstanceOf[Props]
+        ) = {
+          val model0 = model
+          val onSubmit0 = onSubmit
+          new Props {
+            val model = model0
+            override val onSubmit = onSubmit0
+          }
+        }
       }
 
       @JSImport("react-redux-form", "Form")
@@ -86,11 +90,11 @@ private[raw] object ReactReduxForm {
 
     object ControlImpl {
 
-      @js.native
+      @ScalaJSDefined
       trait Props extends js.Object {
-        val model: Model = js.native
-        val `type`: js.UndefOr[String] = js.native
-        val component: js.UndefOr[js.Any] = js.native
+        val model: Model
+        val `type`: js.UndefOr[String] = js.undefined
+        val component: js.UndefOr[js.Any] = js.undefined
       }
 
       object Props {
@@ -98,11 +102,16 @@ private[raw] object ReactReduxForm {
           model: Model,
           `type`: js.UndefOr[String] = js.undefined,
           component: js.UndefOr[js.Any] = js.undefined
-        ) = js.Dynamic.literal(
-          model = model.asInstanceOf[js.Any],
-          `type` = `type`,
-          component = component
-        ).asInstanceOf[Props]
+        ) = {
+          val model0 = model
+          val type0 = `type`
+          val component0 = component
+          new Props {
+            val model = model0
+            override val `type` = type0
+            override val component = component0
+          }
+        }
       }
 
       @JSImport("react-redux-form", "Control")

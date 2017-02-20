@@ -16,9 +16,9 @@ object Main extends js.JSApp {
 
   type Action = js.Object
 
-  @js.native
+  @ScalaJSDefined
   trait State extends js.Object {
-    def testForm: UserForm.State = js.native
+    val testForm: UserForm.State
   }
 
   def App(store: Store[js.Any, Action]) = {

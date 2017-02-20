@@ -1,22 +1,23 @@
 package eldis.redux.rrf.examples.typed
 
 import scalajs.js
+import js.annotation.ScalaJSDefined
 import eldis.react._
 import vdom.prefix_<^._
 import eldis.redux.rrf._
 
 object UserForm {
 
-  @js.native
+  @ScalaJSDefined
   trait State extends js.Object {
-    def user: String = js.native
-    def pass: String = js.native
+    val user: String
+    val pass: String
   }
 
-  val initialState = js.Dynamic.literal(
-    user = "test",
-    pass = ""
-  ).asInstanceOf[State]
+  val initialState = new State {
+    val user = "test"
+    val pass = ""
+  }
 
   val component = FunctionalComponent[String]("UserForm") { _ =>
     Form(Form.Props(
