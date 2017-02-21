@@ -112,26 +112,24 @@ object Control {
     controlProps: Option[P],
     children: Seq[ReactNode]
   ): RawControlImpl.Props = {
-    // We either have to do this, or risk collisions with all `Props`
-    // members. Ugh.
-    val newControlProps = raw.Control.makeControlProps(controlProps, children)
-    raw.Control.shrink(new RawControlImpl.Props {
-      override val model = ModelLens.toRawModel(props.model)
-      override val component = props.component.orUndefined
-      override val mapProps = props.mapProps.map(mapPropsToRaw).orUndefined
-      override val updateOn = props.updateOn.map(hooksToRaw).orUndefined
-      override val validators = props.validators.map(functionMapToRaw).orUndefined
-      override val validateOn = props.validateOn.map(hooksToRaw).orUndefined
-      override val asyncValidators = props.asyncValidators.map(asyncFunctionMapToRaw).orUndefined
-      override val asyncValidateOn = props.asyncValidateOn.map(hooksToRaw).orUndefined
-      override val errors = props.errors.map(functionMapToRaw).orUndefined
-      override val parser = props.parser.map(parserToRaw).orUndefined
-      override val changeAction = props.changeAction.map(changeActionToRaw).orUndefined
-      override val controlProps = newControlProps.orUndefined
-      override val ignore = props.ignore.map(hooksToRaw).orUndefined
-      override val disabled = props.disabled.orUndefined
-      override val getRef = props.getRef.orUndefined
-    })
+    val props0 = raw.Control.Props(
+      model = ModelLens.toRawModel(props.model),
+      component = props.component,
+      mapProps = props.mapProps.map(mapPropsToRaw),
+      updateOn = props.updateOn.map(hooksToRaw),
+      validators = props.validators.map(functionMapToRaw),
+      validateOn = props.validateOn.map(hooksToRaw),
+      asyncValidators = props.asyncValidators.map(asyncFunctionMapToRaw),
+      asyncValidateOn = props.asyncValidateOn.map(hooksToRaw),
+      errors = props.errors.map(functionMapToRaw),
+      parser = props.parser.map(parserToRaw),
+      changeAction = props.changeAction.map(changeActionToRaw),
+      controlProps = controlProps,
+      ignore = props.ignore.map(hooksToRaw),
+      disabled = props.disabled,
+      getRef = props.getRef
+    )
+    raw.Control.makeRawProps(props0, children)
   }
 
   private def applyImpl[P <: js.Object](
