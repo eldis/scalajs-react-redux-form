@@ -153,7 +153,7 @@ private[raw] object ReactReduxForm {
 
       def apply(props: Props): ReactNode = {
         val rawComponent = getStandardComponent(name)
-        val rawProps = toImplProps(props)
+        val rawProps = makeRawProps(props, Seq())
         React.createElement(rawComponent, rawProps)
       }
     }
@@ -164,30 +164,18 @@ private[raw] object ReactReduxForm {
         def name: String
 
         def apply(props: Props)(children: ReactNode*): ReactNode = {
-          js.Dynamic.global.console.log("props with children (", name, "): ", props.asInstanceOf[js.Any])
-          js.Dynamic.global.console.log("children: ", children.toJSArray)
           val rawComponent = getStandardComponent(name)
-          val newControlProps = makeControlProps(props.controlProps, children)
-          val rawProps = toImplProps(props.copy(controlProps = newControlProps))
-          js.Dynamic.global.console.log("rawProps: ", rawProps)
+          val rawProps = makeRawProps(props, children)
           React.createElement(rawComponent, rawProps)
         }
       }
     }
 
     def apply(props: Props)(children: ReactNode*): ReactNode = {
-      if (children.size > 0) {
-        React.createElement(
-          ControlImpl.JSControl,
-          toImplProps(props),
-          children: _*
-        )
-      } else {
-        React.createElement(
-          ControlImpl.JSControl,
-          toImplProps(props)
-        )
-      }
+      React.createElement(
+        ControlImpl.JSControl,
+        makeRawProps(props, children)
+      )
     }
 
     // These have additional props - pass them through controlProps
@@ -201,11 +189,35 @@ private[raw] object ReactReduxForm {
     def button = standardWithChildren("button")
     def reset = standardWithChildren("reset")
 
-    // TODO: move those to some other place
+    private[rrf] def makeRawProps(
+      props: Props,
+      children: Seq[ReactNode]
+    ): ControlImpl.Props = {
+      val newControlProps = makeControlProps(props.controlProps, children)
+      shrink(
+        new ControlImpl.Props {
+          override val model = props.model
+          override val component = props.component.orUndefined
+          override val mapProps = props.mapProps.orUndefined
+          override val updateOn = props.updateOn.orUndefined
+          override val validators = props.validators.orUndefined
+          override val validateOn = props.validateOn.orUndefined
+          override val asyncValidators = props.asyncValidators.orUndefined
+          override val asyncValidateOn = props.asyncValidateOn.orUndefined
+          override val errors = props.errors.orUndefined
+          override val parser = props.parser.orUndefined
+          override val changeAction = props.changeAction.orUndefined
+          override val controlProps = newControlProps.orUndefined
+          override val ignore = props.ignore.orUndefined
+          override val disabled = props.disabled.orUndefined
+          override val getRef = props.getRef.orUndefined
+        }
+      )
+    }
 
     // Add "children" prop to an object.
     // Isn't there a better solution?
-    private[rrf] def makeControlProps[A <: js.Object](
+    private def makeControlProps[A <: js.Object](
       baseControlProps: Option[A],
       children: Seq[ReactNode]
     ): Option[js.Object] = {
@@ -230,36 +242,11 @@ private[raw] object ReactReduxForm {
 
     // Removes `undefined` props from an object. Required since
     // `{}` and `{ foo: undefined }` are not equivalent.
-    private[rrf] def shrink[A <: js.Object](x: A): A = {
-      val src = x.asInstanceOf[js.Dictionary[js.Any]]
-      var dst = js.Dictionary[js.Any]()
-      for {
-        (k, v) <- src
-        if (js.undefined != v)
-      } dst.update(k, v)
-      dst.asInstanceOf[A]
-    }
-
-    private def toImplProps(props: Props) =
-      shrink(
-        new ControlImpl.Props {
-          override val model = props.model
-          override val component = props.component.orUndefined
-          override val mapProps = props.mapProps.orUndefined
-          override val updateOn = props.updateOn.orUndefined
-          override val validators = props.validators.orUndefined
-          override val validateOn = props.validateOn.orUndefined
-          override val asyncValidators = props.asyncValidators.orUndefined
-          override val asyncValidateOn = props.asyncValidateOn.orUndefined
-          override val errors = props.errors.orUndefined
-          override val parser = props.parser.orUndefined
-          override val changeAction = props.changeAction.orUndefined
-          override val controlProps = props.controlProps.orUndefined
-          override val ignore = props.ignore.orUndefined
-          override val disabled = props.disabled.orUndefined
-          override val getRef = props.getRef.orUndefined
-        }
-      )
+    private def shrink[A <: js.Object](x: A): A =
+      x.asInstanceOf[js.Dictionary[js.Any]]
+        .filter { case (_, v) => js.undefined != v }
+        .dict
+        .asInstanceOf[A]
 
     private def standard(n: String): StandardControl = new StandardControl {
       def name = n
