@@ -3,6 +3,7 @@ package eldis.redux.rrf.examples.typed
 import scalajs.js
 import js.annotation.ScalaJSDefined
 import eldis.react._
+import vdom.Style
 import vdom.prefix_<^._
 import eldis.redux.rrf._
 
@@ -28,12 +29,18 @@ object UserForm {
         // Create lens manually
         GenLens[UserForm.State](_.user),
         component = Some(CustomInput.component)
-      )),
+      ))(),
       <.label()("Password:"),
-      Control(Control.Props(
-        StringLens[UserForm.State, String](".pass"),
-        `type` = Some("password")
-      ))
+      Control(
+        Control.Props(StringLens[UserForm.State, String](".pass")),
+        vdom.Attrs(^.`type` := "password").toJs
+      )(),
+      <.br()(),
+      Control.button(Control.Props(GenLens[UserForm.State](_.user)))(
+        ^.style := Style(
+          "color" -> "blue"
+        )
+      )("Submit")
     )
   }
   def apply(): ReactDOMElement = React.createElement(component, "")

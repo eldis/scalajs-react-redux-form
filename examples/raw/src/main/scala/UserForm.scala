@@ -15,9 +15,14 @@ object UserForm {
   val component = FunctionalComponent[String]("UserForm") { _ =>
     Form(Form.Props("testForm"))(
       <.label()("Username:"),
-      Control(Control.Props(".user", component = CustomInput.component)),
+      Control(Control.Props(".user", component = Some(CustomInput.component)))(),
       <.label()("Password:"),
-      Control(Control.Props(".pass", `type` = "password"))
+      Control(Control.Props(
+        ".pass",
+        controlProps = Some(vdom.Attrs(^.`type` := "password").toJs)
+      ))(),
+      <.br()(),
+      Control.button(Control.Props("testForm"))("Submit")
     )
   }
   def apply(): ReactDOMElement = React.createElement(component, "")

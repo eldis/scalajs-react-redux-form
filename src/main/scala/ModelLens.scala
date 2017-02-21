@@ -54,6 +54,9 @@ object ModelLens {
   def toRawModel[A](f: ModelLens[A, _]): raw.impl.Model =
     f.asInstanceOf[raw.impl.Model]
 
+  def fromRawModel[A, B](m: raw.impl.Model): ModelLens[A, B] =
+    m.asInstanceOf[ModelLens[A, B]]
+
   def compose[A, B, C](f: ModelLens[B, C], g: ModelLens[A, B]): ModelLens[A, C] =
     // TODO: use some better combination here?
     (f, g) match {
