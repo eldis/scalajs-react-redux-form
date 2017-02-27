@@ -83,7 +83,59 @@ private[raw] object ReactReduxForm {
     def apply(props: Props)(ch: ReactNode*) =
       React.createElement(
         FormImpl.JSForm,
-        FormImpl.Props(props.model, props.onSubmit.map(f => f: js.Function1[js.Any, Unit]).orUndefined),
+        FormImpl.Props(
+          props.model,
+          props.onSubmit.map(f => f: js.Function1[js.Any, Unit]).orUndefined
+        ),
+        ch: _*
+      )
+  }
+
+  object LocalForm {
+
+    import Impl._
+
+    object LocalFormImpl {
+
+      // Differs from `Form.FormImplProps` - `model` is optional
+      @ScalaJSDefined
+      trait Props extends js.Object {
+        // No model lens here - it just adds unnecessary complexity
+        val initialState: js.UndefOr[Any] = js.undefined
+        val onSubmit: js.UndefOr[SubmitHandler] = js.undefined
+      }
+
+      object Props {
+        def apply(
+          initialState: js.UndefOr[Any] = js.undefined,
+          onSubmit: js.UndefOr[SubmitHandler] = js.undefined
+        ) = {
+          val initialState0 = initialState
+          val onSubmit0 = onSubmit
+          new Props {
+            override val initialState = initialState0
+            override val onSubmit = onSubmit0
+          }
+        }
+      }
+
+      @JSImport("react-redux-form", "LocalForm")
+      @js.native
+      object JSLocalForm extends JSComponent[Props]
+    }
+
+    case class Props(
+      model: Option[String],
+      onSubmit: Option[js.Any => Unit] = None
+    )
+
+    def apply(props: Props)(ch: ReactNode*) =
+      React.createElement(
+        LocalFormImpl.JSLocalForm,
+        LocalFormImpl.Props(
+          props.model.orUndefined,
+          props.onSubmit.map(f => f: js.Function1[js.Any, Unit]).orUndefined
+        ),
         ch: _*
       )
   }

@@ -9,6 +9,8 @@ package object raw {
 
   val Form = ReactReduxForm.Form
 
+  val LocalForm = ReactReduxForm.LocalForm
+
   val Control = ReactReduxForm.Control
 
 }
