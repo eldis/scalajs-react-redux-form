@@ -42,7 +42,9 @@ object ScalaJSReactReduxForm {
       "react-redux-form" -> JsVersions.reactReduxForm,
 
       // Doesn't affect footprint - rrf uses it internally
-      "lodash.get" -> JsVersions.lodash
+
+      "lodash.get" -> JsVersions.lodash,
+      "lodash.topath" -> JsVersions.lodash
     )
 
     lazy val jsReduxLogger = "redux-logger" -> JsVersions.reduxLogger

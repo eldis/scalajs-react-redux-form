@@ -57,6 +57,20 @@ class ModelLensSpec extends FunSpec with Matchers {
       val barAtIndex = a.bar.asInstanceOf[js.Array[Int]](2)
       assert((baz >>> index)(a) == barAtIndex.asInstanceOf[js.Any])
     }
+
+    it("should properly modify the object (over)") {
+      val f = modelFixture
+      import f._
+
+      val out = ModelLens.over((fooLens >>> indexLens >>> barLens), model)(_ + 333)
+
+      out.foo(0).bar should equal(111)
+      out.foo(1).bar should equal(555)
+      out.foo(2).bar should equal(333)
+
+      // Shouldn't change the source
+      model.foo(1).bar should equal(222)
+    }
   }
 }
 
