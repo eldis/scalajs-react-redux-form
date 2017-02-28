@@ -33,15 +33,32 @@ object StringLens {
   @inline
   def self[A]: StringLens[A, A] = StringLens[A, A]("")
 
-  def applyLens[A, B](f: StringLens[A, B], a: A): B =
+  def get[A, B](f: StringLens[A, B], a: A): B =
+    // TODO: lodashToPath + lodashSet to match the implementation in RRF
     if ("" == f) {
       a.asInstanceOf[B]
     } else {
       impl.lodashGet(
-        a.asInstanceOf[js.Object],
+        a.asInstanceOf[js.Any],
         run(f)
       ).asInstanceOf[B]
     }
+
+  /**
+   * Creates a copy of `a` with `b` at path `f`.
+   *
+   * Warning: this freezes `a`!
+   */
+  def set[A, B](f: StringLens[A, B], a: A)(b: B): A =
+    // Mismatched with get - same as RRF
+    impl.icepick.setIn(
+      a.asInstanceOf[js.Any],
+      impl.lodashToPath(run(f)),
+      b.asInstanceOf[js.Any]
+    ).asInstanceOf[A]
+
+  def over[A, B](f: StringLens[A, B], a: A)(g: B => B): A =
+    set(f, a)(g(get(f, a)))
 
   @inline
   def compose[A, B, C](f: StringLens[B, C], g: StringLens[A, B]): StringLens[A, C] =
