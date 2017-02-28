@@ -140,6 +140,12 @@ object ScalaJSReactReduxForm {
         Settings.exampleProject("typed")
       )
       .dependsOn(scalaJsReactReduxForm)
+
+    lazy val exCombine = project
+      .configure(
+        Settings.exampleProject("combine")
+      )
+      .dependsOn(scalaJsReactReduxForm)
   }
 }
 
