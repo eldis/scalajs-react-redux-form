@@ -1,7 +1,10 @@
 package eldis.redux.rrf
 
 import scala.scalajs.js
-import eldis.redux
+import js.|
+import js.annotation.ScalaJSDefined
+
+import eldis.redux.Reducer
 
 /**
  * Typed forms object for `combineForms`:
@@ -15,35 +18,62 @@ import eldis.redux
  * @param S Top state type.
  * @param A Top action type
  */
-@js.native
-sealed trait Forms[S, A] extends js.Any
+@ScalaJSDefined
+trait Forms[S, A] extends js.Any
 
 object Forms {
 
-  @inline
-  def apply[S, A](pairs: Pair[S, A]*): Forms[S, A] = {
-    var res = js.Dictionary[Any]()
-    pairs.foreach {
-      case ReducerPair(path, value) =>
-        res.update(StringLens.run(path), value)
-      case StatePair(path, value) =>
-        res.update(StringLens.run(path), value)
+  def apply[S, A](pairs: Pair[S, _, A]*): Unscoped[S, Forms[S, A]] =
+    Unscoped[S, Forms[S, A]] { (modelOpt: Option[StringLens[_, S]]) =>
+      {
+        def composeModels[S2](
+          global: Option[StringLens[_, S]],
+          local: StringLens[S, S2]
+        ): StringLens[_, S2] =
+          global.fold[StringLens[_, S2]](local)(
+            g => StringLens.compose(local, g)
+          )
+
+        type ElemType = (String, Reducer[T, A] | T) forSome { type T }
+
+        def worker[S2, A](p: Pair[S, S2, A]): (String, Reducer[S2, A] | S2) =
+          {
+            val fullModel: StringLens[G, S2] forSome { type G } = composeModels(modelOpt, p.model)
+            val value = p.value.fold[Reducer[S2, A] | S2](
+              ur => ur.scope(fullModel).run,
+              s2 => s2
+            )
+            (StringLens.run(p.model), value)
+          }
+
+        val elems: Seq[ElemType] = pairs.map(p => (worker(p): ElemType))
+
+        js.Dictionary(elems: _*).asInstanceOf[Forms[S, A]]
+      }
     }
-    res.asInstanceOf[Forms[S, A]]
-  }
 
   @inline
   def raw(self: Forms[_, _]) = self.asInstanceOf[js.Object]
 
-  sealed trait Pair[S, -A]
+  case class Pair[S1, S2, -A](
+    model: StringLens[S1, S2],
+    value: Either[Unscoped[S2, Reducer[S2, A]], S2]
+  )
 
-  case class ReducerPair[S1, S2, -A](
-    path: StringLens[S1, S2],
-    value: redux.Reducer[S2, A]
-  ) extends Pair[S1, A]
+  object Pair {
+    implicit def unscopedToPair[S1, S2, A](
+      t: (StringLens[S1, S2], Unscoped[S2, Reducer[S2, A]])
+    ): Pair[S1, S2, A] =
+      Pair[S1, S2, A](t._1, Left(t._2))
 
-  case class StatePair[S1, S2](
-    path: StringLens[S1, S2],
-    value: S2
-  ) extends Pair[S1, Any]
+    implicit def reducerToPair[S1, S2, A](
+      t: (StringLens[S1, S2], Reducer[S2, A])
+    ): Pair[S1, S2, A] =
+      Pair[S1, S2, A](t._1, Left(Unscoped[S2, Reducer[S2, A]](_ => t._2)))
+
+    implicit def stateToPair[S1, S2, A](
+      t: (StringLens[S1, S2], S2)
+    ): Pair[S1, S2, A] =
+      Pair[S1, S2, A](t._1, Right(t._2))
+  }
 }

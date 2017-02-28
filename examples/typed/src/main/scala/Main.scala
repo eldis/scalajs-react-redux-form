@@ -36,15 +36,12 @@ object Main extends js.JSApp {
 
   def main(): Unit = {
     val forms = Forms(
-      Forms.StatePair(
-        StringLens[State, UserForm.State]("testForm"),
-        UserForm.initialState
-      )
+      StringLens[State, UserForm.State]("testForm") -> UserForm.initialState
     )
     val store = createStore(
       (s: js.Any, a: js.Any) => s,
       js.undefined,
-      combineForms(forms): js.Function,
+      combineForms(forms).run: js.Function,
       applyMiddleware(Seq(createLogger()))
     )
 
