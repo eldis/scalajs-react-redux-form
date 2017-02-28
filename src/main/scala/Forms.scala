@@ -19,7 +19,7 @@ import eldis.redux.Reducer
  * @param A Top action type
  */
 @ScalaJSDefined
-trait Forms[S, A] extends js.Any
+trait Forms[S, -A] extends js.Any
 
 object Forms {
 
@@ -55,6 +55,9 @@ object Forms {
   @inline
   def raw(self: Forms[_, _]) = self.asInstanceOf[js.Object]
 
+  /**
+   * A magnet to support entries in various shapes.
+   */
   case class Pair[S1, S2, -A](
     model: StringLens[S1, S2],
     value: Either[Unscoped[S2, Reducer[S2, A]], S2]
