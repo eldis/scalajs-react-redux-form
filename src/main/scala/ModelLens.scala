@@ -45,16 +45,16 @@ object ModelLens {
    * Warning: this freezes `a`!
    */
   @inline
-  def get[A, B](f: ModelLens[A, B], a: A): B =
-    StringLens.get(makeStringLens(f, a), a)
+  def get[A, B](f: ModelLens[A, B])(a: A): B =
+    StringLens.get(makeStringLens(f, a))(a)
 
   @inline
-  def set[A, B](f: ModelLens[A, B], a: A)(b: B): A =
-    StringLens.set(makeStringLens(f, a), a)(b)
+  def set[A, B](f: ModelLens[A, B], b: B)(a: A): A =
+    StringLens.set(makeStringLens(f, a), b)(a)
 
   @inline
-  def over[A, B](f: ModelLens[A, B], a: A)(g: B => B): A =
-    StringLens.over(makeStringLens(f, a), a)(g)
+  def over[A, B](f: ModelLens[A, B])(g: B => B)(a: A): A =
+    StringLens.over(makeStringLens(f, a))(g)(a)
 
   def makeStringLens[A, B](f: ModelLens[A, B], a: A): StringLens[A, B] =
     f match {
@@ -80,13 +80,13 @@ object ModelLens {
         fromLensFunction[A, C](a => StringLens.compose(f, g(a)))
       case (FunctionML(f), StringML(g)) =>
         fromLensFunction[A, C](a => {
-          val submodel = StringLens.get(g, a)
+          val submodel = StringLens.get(g)(a)
           StringLens.compose(f(submodel), g)
         })
       case (FunctionML(f), FunctionML(g)) =>
         FunctionML[A, C]((a: A) => {
           val gSL: StringLens[A, B] = g(a)
-          val submodel = StringLens.get(gSL, a)
+          val submodel = StringLens.get(gSL)(a)
           val fSL: StringLens[B, C] = f(submodel)
           StringLens.compose(fSL, gSL)
         })
@@ -130,7 +130,7 @@ object ModelLens {
   implicit class ModelLensOps[A, B](self: ModelLens[A, B]) {
 
     @inline
-    def apply(a: A): B = ModelLens.get(self, a)
+    def apply(a: A): B = ModelLens.get(self)(a)
 
     @inline
     def makeStringLens(a: A): StringLens[A, B] =

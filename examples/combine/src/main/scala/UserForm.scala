@@ -25,6 +25,10 @@ object UserForm {
       // We need full path here.
       StringLens[Main.State, UserForm.State]("deep.testForm")
     ))(
+      Control(Control.Props(
+        StringLens[Main.State, String]("deep.header"),
+        component = Some(Header.component)
+      ))(),
       <.label()("Username:"),
       Control(Control.Props(
         GenLens[UserForm.State](_.user),
