@@ -20,6 +20,31 @@ sealed trait ModelLens[A, B] extends js.Any
 
 object ModelLens {
 
+  @js.native
+  sealed trait Partial[A, B] extends js.Any
+
+  object Partial {
+
+    @inline
+    def apply[A, B](sl: ModelLens[A, B]): Partial[A, B] = sl match {
+      case StringML(sl) => sl.partial.asInstanceOf[Partial[A, B]]
+      case FunctionML(fl) =>
+        val res: js.Function1[A, StringLens.Partial[A, B]] =
+          (a: A) => fl(a).partial
+        res.asInstanceOf[Partial[A, B]]
+    }
+
+    @inline
+    def toRawModel(p: Partial[_, _]): raw.impl.Model =
+      p.asInstanceOf[raw.impl.Model]
+
+    @inline
+    implicit def partialStringLensIsPartialModelLens[A, B](
+      sl: StringLens.Partial[A, B]
+    ): ModelLens.Partial[A, B] =
+      sl.asInstanceOf[Partial[A, B]]
+  }
+
   @inline
   def fromString[A, B](path: String): ModelLens[A, B] =
     StringML(StringLens[A, B](path))
@@ -64,7 +89,7 @@ object ModelLens {
     }
 
   @inline
-  def toRawModel[A](f: ModelLens[A, _]): raw.impl.Model =
+  def toRawModel[A](f: ModelLens[_, _]): raw.impl.Model =
     f.asInstanceOf[raw.impl.Model]
 
   @inline
@@ -127,7 +152,7 @@ object ModelLens {
     StringML(sl)
 
   @inline
-  implicit class ModelLensOps[A, B](self: ModelLens[A, B]) {
+  implicit class ModelLensOps[A, B](val self: ModelLens[A, B]) extends AnyVal {
 
     @inline
     def apply(a: A): B = ModelLens.get(self)(a)
@@ -139,5 +164,8 @@ object ModelLens {
     @inline
     def >>>[C](g: ModelLens[B, C]): ModelLens[A, C] =
       ModelLens.compose(g, self)
+
+    @inline
+    def partial: Partial[A, B] = Partial(self)
   }
 }

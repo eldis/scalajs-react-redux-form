@@ -62,7 +62,7 @@ class ModelLensSpec extends FunSpec with Matchers {
       val f = modelFixture
       import f._
 
-      val out = ModelLens.over((fooLens >>> indexLens >>> barLens), model)(_ + 333)
+      val out = ModelLens.over(fooLens >>> indexLens >>> barLens)(_ + 333)(model)
 
       out.foo(0).bar should equal(111)
       out.foo(1).bar should equal(555)

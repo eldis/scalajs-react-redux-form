@@ -10,11 +10,35 @@ import js.annotation._
  * RRF model path (e.g. "foo[1].bar"), extended with lens-like typing
  * and combinators. Uses a "phantom" trait to avoid confusion with
  * plain strings.
+ *
+ * All the model paths are assumed to be full. Local models can be
+ * created via [[local]] method on companion object.
  */
 @js.native
 sealed trait StringLens[A, B] extends js.Any
 
 object StringLens {
+
+  @js.native
+  sealed trait Partial[A, B] extends js.Any
+
+  object Partial {
+
+    @inline
+    def apply[A, B](sl: StringLens[A, B]): Partial[A, B] = {
+      val s = StringLens.run(sl)
+      val res = if (s.startsWith("[")) {
+        s
+      } else {
+        "." + sl
+      }
+      res.asInstanceOf[Partial[A, B]]
+    }
+
+    @inline
+    def run(p: Partial[_, _]): String =
+      p.asInstanceOf[String]
+  }
 
   @inline
   def apply[A, B](path: String): StringLens[A, B] =
@@ -72,5 +96,9 @@ object StringLens {
     case (a, "") => a
     case (a, b) if b.startsWith("[") => a + b
     case (a, b) => a + "." + b
+  }
+
+  implicit class StringLensOps[A, B](val self: StringLens[A, B]) extends AnyVal {
+    def partial: Partial[A, B] = Partial(self)
   }
 }

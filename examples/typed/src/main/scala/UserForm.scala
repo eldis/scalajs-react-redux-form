@@ -22,21 +22,21 @@ object UserForm {
 
   val component = FunctionalComponent[String]("UserForm") { _ =>
     Form(Form.Props(
-      StringLens[Main.State, UserForm.State]("testForm")
+      GenLens[Main.State](_.testForm)
     ))(
       <.label()("Username:"),
       Control(Control.Props(
-        // Create lens manually
-        GenLens[UserForm.State](_.user),
+        // `.partial` makes the path relative to form model
+        GenLens[UserForm.State](_.user).partial,
         component = Some(CustomInput.component)
       ))(),
       <.label()("Password:"),
       Control(
-        Control.Props(StringLens[UserForm.State, String](".pass")),
+        Control.Props(GenLens[UserForm.State](_.pass).partial),
         vdom.Attrs(^.`type` := "password").toJs
       )(),
       <.br()(),
-      Control.button(Control.Props(GenLens[UserForm.State](_.user)))(
+      Control.button(Control.Props(GenLens[UserForm.State](_.user).partial))(
         ^.style := Style(
           "color" -> "blue"
         )

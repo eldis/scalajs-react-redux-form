@@ -22,15 +22,15 @@ object GenLens {
    * case class Bar(foo: Foo)
    *
    * // These are identical
-   * val sl1 = StringLens[Bar, Int](".foo.x")
+   * val sl1 = StringLens[Bar, Int]("foo.x")
    * // But this is a bit shorter and safer
    * val sl2 = GenLens[Bar](_.foo.x)
    *
    * }}}
    *
-   * The function must be in shape "_.foo.bar.baz"
-   * Currently only partial models are supported.
-   *
+   * The function must be in shape `_.foo.bar.baz`. All members are
+   * assumed to be fields, and to be exposed to JavaScript with the same
+   * names (though this isn't currently enforced).
    */
   @inline
   def apply[A] = new GenLens[A]()
@@ -74,6 +74,6 @@ object GenLensMacros {
     }
 
     // TODO: Empty path leads to empty string - is this OK?
-    "." + worker(body).reverse.mkString(".")
+    worker(body).reverse.mkString(".")
   }
 }
