@@ -1,5 +1,7 @@
 package eldis.redux.rrf.examples.typed
 
+import scala.scalajs.js
+
 import eldis.react._
 import vdom.prefix_<^._
 
@@ -16,4 +18,18 @@ object Message {
   )
 
   def apply() = connected((), Seq())
+}
+
+// Header with data, provided by React Redux Form
+object Header {
+
+  @js.native
+  trait Props extends js.Object {
+    // provided by rrf
+    def value: String
+  }
+
+  val component = NativeFunctionalComponent[Props]("Header") {
+    (p: Props) => <.h3()(p.value)
+  }
 }

@@ -1,7 +1,9 @@
 package eldis.redux.rrf.util
 
 import eldis.redux.Reducer
-import eldis.redux.rrf.{ Scoped, Unscoped, StringLens }
+import eldis.redux.rrf.{ Scoped, Unscoped, StringLens, Forms }
+
+import scala.scalajs.js
 
 /**
  * Custom alternative to `combineReducers`
@@ -12,13 +14,13 @@ import eldis.redux.rrf.{ Scoped, Unscoped, StringLens }
  */
 object chainReducers {
 
-  def apply[G, A](items: Item[G, A]*): Reducer[G, A] =
-    (s: G, a: A) => items.foldLeft(s) {
-      (acc, item) => item.value.run(acc, a)
-    }
+  def apply[G, A](items: Item[G, A]*): Reducer[G, A] = {
+    val reducers = items.map(_.value.run)
+    joinReducers(reducers.toList)
+  }
 
   /**
-   * Magnet to support reducers in different forms
+   * Magnet to support reducers in different shapes
    */
   case class Item[G, -A](value: Scoped[G, Reducer[G, A]])
 
@@ -44,10 +46,14 @@ object chainReducers {
       Item[G, A](scopedGlobal)
     }
 
-    private def reducerOver[G, S, A](
-      lens: StringLens[G, S],
-      r: Reducer[S, A]
-    ): Reducer[G, A] =
-      (s: G, a: A) => StringLens.over(lens, s)(r(_, a))
+    implicit def rootUnscopedForms[G, A](
+      forms: Forms[G, A]
+    ): Item[G, A] =
+      rootUnscopedReducerItem(Forms.makeReducer(forms))
+
+    implicit def unscopedForms[G, S, A](
+      t: (StringLens[G, S], Forms[S, A])
+    ): Item[G, A] =
+      unscopedReducerItem((t._1, Forms.makeReducer(t._2)))
   }
 }
