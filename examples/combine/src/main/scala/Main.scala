@@ -12,7 +12,7 @@ import eldis.redux._
 import eldis.redux.react.{ eldis => react }
 
 import eldis.redux.rrf
-import rrf.{ combineFormsUnscoped, Forms, StringLens, Scoped, Unscoped, RRFState }
+import rrf.{ combineFormsUnscoped, Forms, GenLens, Scoped, Unscoped, RRFState }
 import rrf.util.chainReducers
 
 /**
@@ -28,7 +28,7 @@ object Main extends js.JSApp {
 
     // This is not used by any RRF form reducer. `combineForms` would
     // complain about this being present in initial state, but
-    // `chainReducers` is more permissive.
+    // `chainReducers` is more permissive...
     val header: String
 
     // Data used by RRF internally
@@ -75,9 +75,9 @@ object Main extends js.JSApp {
     // This is only scoped to `Deep` - it doesn't know about the global state
     val forms: Forms[Deep, Action] = Forms(
       // path to rrf data
-      StringLens[Deep, RRFState]("rrfData")
+      GenLens[Deep](_.rrfData)
     )(
-        StringLens[Deep, UserForm.State]("testForm") -> UserForm.initialState
+        GenLens[Deep](_.testForm) -> UserForm.initialState
       )
 
     // This is global, since it needs access to the form data. It also
@@ -99,7 +99,7 @@ object Main extends js.JSApp {
     val rawReducer: Reducer[State, Action] =
       chainReducers(
         // Scoping happens here
-        StringLens[State, Deep]("deep") -> forms,
+        GenLens[State](_.deep) -> forms,
         customReducer
       )
 

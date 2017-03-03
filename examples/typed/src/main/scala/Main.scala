@@ -10,7 +10,7 @@ import eldis.react._
 import eldis.redux._
 import eldis.redux.react.{ eldis => react }
 
-import eldis.redux.rrf.{ combineForms, Forms, StringLens, RRFState }
+import eldis.redux.rrf.{ combineForms, Forms, GenLens, RRFState }
 
 object Main extends js.JSApp {
 
@@ -19,6 +19,7 @@ object Main extends js.JSApp {
   @ScalaJSDefined
   trait State extends js.Object {
     val testForm: UserForm.State
+    // RRF handles this - we only need to prepare a place for it.
     val rrfData: RRFState = js.undefined
   }
 
@@ -36,8 +37,8 @@ object Main extends js.JSApp {
   }
 
   def main(): Unit = {
-    val forms = Forms(StringLens[State, RRFState]("rrfData"))(
-      StringLens[State, UserForm.State]("testForm") -> UserForm.initialState
+    val forms = Forms(GenLens[State](_.rrfData))(
+      GenLens[State](_.testForm) -> UserForm.initialState
     )
     val store = createStore(
       (s: js.Any, a: js.Any) => s,

@@ -43,8 +43,29 @@ object Control {
     // TODO
   }
 
+  /**
+   * Magnet for smoother syntax
+   */
+  case class ModelType[A, B](
+    value: Either[ModelLens[A, B], ModelLens.Partial[A, B]]
+  )
+
+  object ModelType {
+    implicit def modelLensIsModelType[A, B](ml: ModelLens[A, B]): ModelType[A, B] =
+      ModelType[A, B](Left(ml))
+    implicit def partialModelLensIsModelType[A, B](pl: ModelLens.Partial[A, B]): ModelType[A, B] =
+      ModelType[A, B](Right(pl))
+    implicit def stringLensIsModelType[A, B](sl: StringLens[A, B]): ModelType[A, B] =
+      ModelType[A, B](Left(sl))
+    implicit def partialStringLensIsModelType[A, B](pl: StringLens.Partial[A, B]): ModelType[A, B] =
+      ModelType[A, B](Right(pl))
+
+    def run[A, B](t: ModelType[A, B]): RawModel =
+      t.value.fold(ModelLens.toRawModel, ModelLens.Partial.toRawModel)
+  }
+
   case class Props[S1, S2, +A](
-    model: ModelLens[S1, S2],
+    model: ModelType[S1, S2],
     // TODO: It would be nice to have this synchronized with controlProps -
     // but we don't have a root class for components. Add some kind of magnet?
     component: Option[js.Any] = None,
@@ -113,7 +134,7 @@ object Control {
     children: Seq[ReactNode]
   ): RawControlImpl.Props = {
     val props0 = raw.Control.Props(
-      model = ModelLens.toRawModel(props.model),
+      model = ModelType.run(props.model),
       component = props.component,
       mapProps = props.mapProps.map(mapPropsToRaw),
       updateOn = props.updateOn.map(hooksToRaw),

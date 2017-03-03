@@ -23,24 +23,25 @@ object UserForm {
   val component = FunctionalComponent[String]("UserForm") { _ =>
     Form(Form.Props(
       // We need full path here.
-      StringLens[Main.State, UserForm.State]("deep.testForm")
+      GenLens[Main.State](_.deep.testForm)
     ))(
       Control(Control.Props(
-        StringLens[Main.State, String]("deep.header"),
+        GenLens[Main.State](_.deep.header),
         component = Some(Header.component)
       ))(),
       <.label()("Username:"),
       Control(Control.Props(
-        GenLens[UserForm.State](_.user),
+        // Notice `.partial` - this makes the path relative to form model
+        GenLens[UserForm.State](_.user).partial,
         component = Some(CustomInput.component)
       ))(),
       <.label()("Password:"),
       Control(
-        Control.Props(GenLens[UserForm.State](_.pass)),
+        Control.Props(GenLens[UserForm.State](_.pass).partial),
         vdom.Attrs(^.`type` := "password").toJs
       )(),
       <.br()(),
-      Control.button(Control.Props(GenLens[UserForm.State](_.user)))(
+      Control.button(Control.Props(GenLens[UserForm.State](_.user).partial))(
         ^.style := Style(
           "color" -> "blue"
         )
