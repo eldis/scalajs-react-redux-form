@@ -27,20 +27,22 @@ class chainReducersSpec extends FunSpec with Matchers {
       Scoped[List[Int]]((s: List[Int], a: Unit) => s :+ s.length)
 
     val urState: Unscoped[State, Reducer[State, Int]] =
-      Unscoped[State, Reducer[State, Int]] {
-        case Some(lens) => fail() // shouldn't scope this!
-        case None => (s: State, a: Int) => new State {
-          val foo = s.foo
-          val bar = a + s.foo.length
+      Unscoped[State, Reducer[State, Int]] { lens =>
+        {
+          assert(StringLens.run(lens) == "") // shouldn't scope this!
+          (s: State, a: Int) => new State {
+            val foo = s.foo
+            val bar = a + s.foo.length
+          }
         }
       }
 
     val urFoo: Unscoped[List[Int], Reducer[List[Int], Int]] =
-      Unscoped[List[Int], Reducer[List[Int], Int]] {
-        case Some(lens) =>
+      Unscoped[List[Int], Reducer[List[Int], Int]] { lens =>
+        {
           assert(StringLens.run(lens) == "foo")
           (s: List[Int], a: Int) => s :+ (11 * a)
-        case None => fail() // shouldn't use this directly!
+        }
       }
   }
 

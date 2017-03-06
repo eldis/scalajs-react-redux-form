@@ -34,7 +34,7 @@ object chainReducers {
     implicit def rootUnscopedReducerItem[G, A](
       u: Unscoped[G, Reducer[G, A]]
     ): Item[G, A] =
-      Item(u.scopeSelf)
+      Item(Unscoped.scopeSelf(u))
 
     implicit def unscopedReducerItem[G, S, A](
       t: (StringLens[G, S], Unscoped[S, Reducer[S, A]])

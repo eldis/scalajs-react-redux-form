@@ -99,6 +99,9 @@ object StringLens {
   }
 
   implicit class StringLensOps[A, B](val self: StringLens[A, B]) extends AnyVal {
+
+    def >>>[C](other: StringLens[B, C]): StringLens[A, C] = compose(other, self)
+
     def partial: Partial[A, B] = Partial(self)
   }
 }

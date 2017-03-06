@@ -37,21 +37,14 @@ object Forms {
    * - Values are corresponding reducers, or initial states.
    */
   def run[S, A](self: Forms[S, A]): Unscoped[S, Result[S]] =
-    Unscoped[S, Result[S]] { (modelOpt: Option[StringLens[_, S]]) =>
+    Unscoped[S, Result[S]] { (extModel: StringLens[_, S]) =>
       {
-        def composeModels[S2](
-          global: Option[StringLens[_, S]],
-          local: StringLens[S, S2]
-        ): StringLens[_, S2] =
-          global.fold[StringLens[_, S2]](local)(
-            g => StringLens.compose(local, g)
-          )
-
         type ElemType = (String, Reducer[T, A] | T) forSome { type T }
 
         def worker[S2, A](p: Pair[S, S2, A]): (String, Reducer[S2, A] | S2) =
           {
-            val fullModel: StringLens[G, S2] forSome { type G } = composeModels(modelOpt, p.model)
+            val fullModel: StringLens[G, S2] forSome { type G } =
+              extModel >>> p.model
             val value = p.value.fold[Reducer[S2, A] | S2](
               ur => ur.scope(fullModel).run,
               s2 => s2
@@ -77,12 +70,9 @@ object Forms {
   def makeReducer[S, A](
     forms: Forms[S, A]
   ): Unscoped[S, Reducer[S, A]] =
-    Unscoped[S, Reducer[S, A]] { (modelOpt: Option[StringLens[_, S]]) =>
+    Unscoped[S, Reducer[S, A]] { (model: StringLens[_, S]) =>
       {
         type ReducerPair = (StringLens[S, X], Reducer[X, A]) forSome { type X }
-
-        val model: StringLens[_, S] =
-          modelOpt.getOrElse(StringLens.self[S])
 
         // We provide no initial state here! It's more or less possible
         // to get one (either via arguments, or by running model reducers),

@@ -83,8 +83,7 @@ package object rrf {
     forms: Forms[S, A],
     plugins: List[Plugin] = Nil
   ): Unscoped[S, Reducer[S, A]] = Unscoped[S, Reducer[S, A]] {
-    case Some(lens) => combineForms(forms, lens, plugins).run
-    case None => combineForms(forms, plugins).run
+    lens => combineForms(forms, lens, plugins).run
   }
 
   def modelReducer[G, S, A](

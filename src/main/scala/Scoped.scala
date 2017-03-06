@@ -25,21 +25,18 @@ object Scoped {
  */
 trait Unscoped[S, +T] {
   def scope[G](lens: StringLens[G, S]): Scoped[G, T]
-  // TODO: clean up this whole self/global/partial model debacle
-  def scopeSelf: Scoped[S, T]
 }
 
 object Unscoped {
 
   def apply[S, T](
-    f: Option[StringLens[_, S]] => T
+    f: StringLens[_, S] => T
   ): Unscoped[S, T] = new Unscoped[S, T] {
-    def scope[G](lens: StringLens[G, S]) = Scoped[G](f(Some(lens)))
-    def scopeSelf = Scoped[S](f(None))
+    def scope[G](lens: StringLens[G, S]) = Scoped[G](f(lens))
   }
 
   // Unscoped objects are implicitly scoped to their substate
   // type for convenience
   implicit def scopeSelf[S, T](u: Unscoped[S, T]): Scoped[S, T] =
-    u.scopeSelf
+    u.scope(StringLens.self)
 }
