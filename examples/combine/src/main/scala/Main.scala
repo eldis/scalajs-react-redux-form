@@ -55,7 +55,7 @@ object Main extends js.JSApp {
     }
 
   def App(store: Store[js.Any, Action]) = {
-    val form = UserForm()
+    val form = UserForm(GenLens[State](_.deep.testForm))
     react.Provider(store)(
       <.div()(
         form,

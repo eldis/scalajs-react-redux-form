@@ -29,6 +29,14 @@ trait Unscoped[S, +T] {
 
 object Unscoped {
 
+  trait Factory[S] {
+    def apply[T](f: StringLens[_, S] => T): Unscoped[S, T]
+  }
+
+  def apply[S]: Factory[S] = new Factory[S] {
+    def apply[T](f: StringLens[_, S] => T) = Unscoped[S, T](f)
+  }
+
   def apply[S, T](
     f: StringLens[_, S] => T
   ): Unscoped[S, T] = new Unscoped[S, T] {
