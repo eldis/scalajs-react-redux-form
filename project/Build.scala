@@ -25,6 +25,7 @@ object ScalaJSReactReduxForm {
     val reduxLogger = "~2.7.4"
 
     val lodash = ">=4.4.2"
+    val icepick = ">=1.1.0"
   }
   object Dependencies {
     lazy val scalaJsReact = "com.github.eldis" %%%! "scalajs-react" % Versions.scalaJsReact
@@ -44,7 +45,8 @@ object ScalaJSReactReduxForm {
       // Doesn't affect footprint - rrf uses it internally
 
       "lodash.get" -> JsVersions.lodash,
-      "lodash.topath" -> JsVersions.lodash
+      "lodash.topath" -> JsVersions.lodash,
+      "icepick" -> JsVersions.icepick
     )
 
     lazy val jsReduxLogger = "redux-logger" -> JsVersions.reduxLogger
