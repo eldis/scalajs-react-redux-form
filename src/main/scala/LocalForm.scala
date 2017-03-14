@@ -31,7 +31,7 @@ object LocalForm {
         props.initialState,
         props.onSubmit.map(_.asInstanceOf[js.Function1[js.Any, Unit]]).orUndefined
       ),
-      ch: _*
+      ch
     )
   }
 }

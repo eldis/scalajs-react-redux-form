@@ -8,8 +8,8 @@ import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
 object ScalaJSReactReduxForm {
   object Versions {
     val scala = "2.11.8"
-    val scalaJsReact = "0.1.0-SNAPSHOT"
-    val scalaJsRedux = "0.3.0-SNAPSHOT"
+    val scalaJsReact = "0.2.0-SNAPSHOT"
+    val scalaJsRedux = "0.4.0-SNAPSHOT"
 
     val scalatest = "3.0.1"
   }

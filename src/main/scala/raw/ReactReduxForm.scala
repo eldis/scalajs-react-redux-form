@@ -87,7 +87,7 @@ private[raw] object ReactReduxForm {
           props.model,
           props.onSubmit.map(f => f: js.Function1[js.Any, Unit]).orUndefined
         ),
-        ch: _*
+        ch
       )
   }
 
@@ -136,7 +136,7 @@ private[raw] object ReactReduxForm {
           props.model.orUndefined,
           props.onSubmit.map(f => f: js.Function1[js.Any, Unit]).orUndefined
         ),
-        ch: _*
+        ch
       )
   }
 

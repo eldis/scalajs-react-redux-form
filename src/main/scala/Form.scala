@@ -30,7 +30,7 @@ object Form {
         ModelLens.toRawModel(props.model),
         rawOnSubmit
       ),
-      ch: _*
+      ch
     )
   }
 }
