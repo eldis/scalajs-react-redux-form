@@ -59,6 +59,7 @@ object ScalaJSReactReduxForm {
       _.settings(
         scalaVersion := Versions.scala,
         organization := "com.github.eldis"
+        resolvers += Opts.resolver.sonatypeSnapshots
       )
 
     def scalajsProject: PC =
