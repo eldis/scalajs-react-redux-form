@@ -1,4 +1,4 @@
-package eldis.redux.rrf.examples.typed
+package eldis.redux.rrf.examples.combine
 
 import scalajs.js
 import js.annotation.ScalaJSDefined
