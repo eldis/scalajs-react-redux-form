@@ -106,7 +106,7 @@ object Main extends js.JSApp {
     val store = createStore(
       (s: js.Any, a: js.Any) => s,
       initialState,
-      rawReducer: js.Function,
+      rawReducer,
       applyMiddleware(Seq(createLogger()))
     )
 

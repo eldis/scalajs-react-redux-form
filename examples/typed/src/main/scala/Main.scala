@@ -43,7 +43,7 @@ object Main extends js.JSApp {
     val store = createStore(
       (s: js.Any, a: js.Any) => s,
       js.undefined,
-      combineForms(forms).run: js.Function,
+      combineForms(forms).run,
       applyMiddleware(Seq(createLogger()))
     )
 
