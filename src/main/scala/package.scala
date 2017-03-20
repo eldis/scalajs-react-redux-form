@@ -14,6 +14,7 @@ package object rrf {
   /**
    * An opaque type for data used by formReducer.
    */
+  // TODO: This has the same shape as the state itself - parameterize?
   @js.native
   trait RRFStateValue extends js.Any
 

@@ -169,7 +169,7 @@ private[raw] object ReactReduxForm {
         val parser: js.UndefOr[js.Function2[String, js.UndefOr[js.Any], js.Any]] =
           js.undefined
 
-        val changeAction: js.UndefOr[js.Function2[Model, js.Any, Action]] = js.undefined
+        val changeAction: js.UndefOr[js.Function2[String, js.Any, Action]] = js.undefined
         val controlProps: js.UndefOr[js.Object] = js.undefined
         val ignore: js.UndefOr[String | js.Array[String]] = js.undefined
         val disabled: js.UndefOr[String | js.Function | Boolean | js.Object] = js.undefined
@@ -193,7 +193,7 @@ private[raw] object ReactReduxForm {
       asyncValidateOn: Option[String | js.Array[String]] = None,
       errors: Option[js.Object] = None,
       parser: Option[js.Function2[String, js.UndefOr[js.Any], js.Any]] = None,
-      changeAction: Option[js.Function2[Model, js.Any, Action]] = None,
+      changeAction: Option[js.Function2[String, js.Any, Action]] = None,
       controlProps: Option[js.Object] = None,
       ignore: Option[String | js.Array[String]] = None,
       disabled: Option[String | js.Function | Boolean | js.Object] = None,

@@ -5,13 +5,13 @@ import js.annotation.ScalaJSDefined
 import js.|
 import js.JSConverters._
 
-import org.scalajs.dom.Node
+import org.scalajs.dom.{ Node, Event }
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import eldis.react
-import react.{ React, ReactNode, JSComponent }
+import react.{ React, ReactNode, JSComponent, NativeComponentType }
 import react.vdom.{ Attrs }
 
 import raw.Control.{ ControlImpl => RawControlImpl }
@@ -36,16 +36,54 @@ object Control {
   type AsyncValidator[S] = S => Future[Boolean]
 
   /**
-   * These props are provided by Control framework.
+   * These props are provided for mapping by `Control` framework.
    */
-  @ScalaJSDefined
-  trait ProvidedProps extends js.Object {
-    // TODO
+  @js.native
+  trait UnmappedProps[S] extends js.Object {
+
+    // This model is from a global state
+    val model: StringLens[_, S]
+
+    // We assume we have a well-defined state
+    val modelValue: S
+    val viewValue: js.UndefOr[S]
+
+    val fieldValue: RRFState
+    val onFocus: js.Function1[Event, Unit]
+    val onBlur: js.Function1[Event, Unit]
+    val onChange: js.Function1[Event, Unit]
+
+    // Better typing here requires massive changes to Props etc.
+    val controlProps: js.UndefOr[Any]
+  }
+
+  /**
+   * These props are provided to the component by `Control` framework
+   * if `mapProps` is not specified.
+   *
+   * Any extra props on Control itself are also spliced here - but this
+   * can't currently be properly typed.
+   */
+  @js.native
+  trait ProvidedProps[S] extends js.Object {
+
+    val disabled: Boolean
+
+    // This model is from a global state
+    val name: StringLens[_, S]
+
+    // We assume our state is well-defined
+    val value: S
+
+    val onFocus: js.Function1[Event, Unit]
+    val onBlur: js.Function1[Event, Unit]
+    val onChange: js.Function1[Event, Unit]
   }
 
   /**
    * Magnet for smoother syntax
    */
+  // TODO: global and partial lenses have differing origins
   case class ModelType[A, B](
     value: Either[ModelLens[A, B], ModelLens.Partial[A, B]]
   )
@@ -64,20 +102,26 @@ object Control {
       t.value.fold(ModelLens.toRawModel, ModelLens.Partial.toRawModel)
   }
 
-  case class Props[S1, S2, +A](
-    model: ModelType[S1, S2],
-    // TODO: It would be nice to have this synchronized with controlProps -
-    // but we don't have a root class for components. Add some kind of magnet?
-    component: Option[js.Any] = None,
-    mapProps: Option[Map[String, Function1[ProvidedProps, Any]]] = None,
+  /**
+   * Props for [[Control]] component.
+   *
+   * @param model resolved relative to containing Form/Fieldset if
+   *   partial, relative to global state otherwise.
+   * @param changeAction StringLens here is relative to the global state
+   */
+  case class Props[S, +A](
+    model: ModelType[_, S],
+    component: Option[NativeComponentType[_]] = None,
+    mapProps: Option[Map[String, Function1[UnmappedProps[S], Any]]] = None,
     updateOn: Option[Set[EventHook]] = None,
-    validators: Option[Map[String, Validator[S2]]] = None,
+    validators: Option[Map[String, Validator[S]]] = None,
     validateOn: Option[Set[EventHook]] = None,
-    asyncValidators: Option[Map[String, AsyncValidator[S2]]] = None,
+    asyncValidators: Option[Map[String, AsyncValidator[S]]] = None,
     asyncValidateOn: Option[Set[EventHook]] = None,
-    errors: Option[Map[String, Validator[S2]]] = None,
-    parser: Option[Function2[String, Option[S2], S2]] = None,
-    changeAction: Option[Function2[ModelLens[S1, S2], S2, A]] = None,
+    errors: Option[Map[String, Validator[S]]] = None,
+    parser: Option[Function2[String, Option[S], S]] = None,
+
+    changeAction: Option[Function2[StringLens[G, S], S, A] forSome { type G }] = None,
     // This is provided separately for better API.
     // The type is a subset of `component`'s props - can't specify this
     // better at the moment.
@@ -90,7 +134,7 @@ object Control {
   sealed trait StandardControl {
     def name: String
 
-    def apply(props: Props[_, _, _ <: js.Object])(attrs: Attrs*): ReactNode = {
+    def apply(props: Props[_, _ <: js.Object])(attrs: Attrs*): ReactNode = {
       val rawComponent = raw.Control.getStandardComponent(name)
       val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs), Seq())
       React.createElement(rawComponent, rawProps)
@@ -102,7 +146,7 @@ object Control {
     sealed trait WithChildren {
       def name: String
 
-      def apply(props: Props[_, _, _ <: js.Object])(attrs: Attrs*)(children: ReactNode*): ReactNode = {
+      def apply(props: Props[_, _ <: js.Object])(attrs: Attrs*)(children: ReactNode*): ReactNode = {
         val rawComponent = raw.Control.getStandardComponent(name)
         val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs), children.toJSArray)
         React.createElement(rawComponent, rawProps)
@@ -111,11 +155,11 @@ object Control {
   }
 
   def apply[P <: js.Object](
-    props: Props[_, _, _ <: js.Object], controlProps: P
+    props: Props[_, _ <: js.Object], controlProps: P
   )(children: ReactNode*): ReactNode =
     applyImpl(props, Some(controlProps))(children)
 
-  def apply(props: Props[_, _, _ <: js.Object])(children: ReactNode*): ReactNode =
+  def apply(props: Props[_, _ <: js.Object])(children: ReactNode*): ReactNode =
     applyImpl(props, None)(children)
 
   def input = standard("input")
@@ -128,8 +172,8 @@ object Control {
   def button = standardWithChildren("button")
   def reset = standardWithChildren("reset")
 
-  private def makeRawProps[S1, S2, A <: js.Object, P <: js.Object](
-    props: Props[S1, S2, A],
+  private def makeRawProps[S, A <: js.Object, P <: js.Object](
+    props: Props[S, A],
     controlProps: Option[P],
     children: Seq[ReactNode]
   ): RawControlImpl.Props = {
@@ -144,7 +188,7 @@ object Control {
       asyncValidateOn = props.asyncValidateOn.map(hooksToRaw),
       errors = props.errors.map(functionMapToRaw),
       parser = props.parser.map(parserToRaw),
-      changeAction = props.changeAction.map(changeActionToRaw),
+      changeAction = props.changeAction.map(f => changeActionToRaw(f)),
       controlProps = controlProps,
       ignore = props.ignore.map(hooksToRaw),
       disabled = props.disabled,
@@ -154,7 +198,7 @@ object Control {
   }
 
   private def applyImpl[P <: js.Object](
-    props: Props[_, _, _ <: js.Object], controlProps: Option[P]
+    props: Props[_, _ <: js.Object], controlProps: Option[P]
   )(children: Seq[ReactNode]) =
     React.createElement(
       RawControlImpl.JSControl,
@@ -164,8 +208,8 @@ object Control {
   private def hooksToRaw(hooks: Set[EventHook]): String | js.Array[String] =
     hooks.toJSArray.map(EventHook.toRaw)
 
-  private def mapPropsToRaw(m: Map[String, Function1[ProvidedProps, Any]]): js.Dictionary[js.Function1[js.Object, Any]] =
-    m.mapValues(f => ((props: Object) => f(props.asInstanceOf[ProvidedProps])): js.Function1[js.Object, Any])
+  private def mapPropsToRaw[S](m: Map[String, Function1[UnmappedProps[S], Any]]): js.Dictionary[js.Function1[js.Object, Any]] =
+    m.mapValues(f => ((props: Object) => f(props.asInstanceOf[UnmappedProps[S]])): js.Function1[js.Object, Any])
       .toJSDictionary
 
   private def functionMapToRaw[A, B](m: Map[String, Function1[A, B]]): js.Object =
@@ -178,11 +222,11 @@ object Control {
       .toJSDictionary
       .asInstanceOf[js.Object]
 
-  private def changeActionToRaw[S1, S2, A <: RawAction](
-    f: Function2[ModelLens[S1, S2], S2, A]
-  ): js.Function2[RawModel, js.Any, RawAction] =
-    (m: RawModel, v: js.Any) => {
-      f(ModelLens.fromRawModel[S1, S2](m), v.asInstanceOf[S2])
+  private def changeActionToRaw[G, S, A <: RawAction](
+    f: Function2[StringLens[G, S], S, A]
+  ): js.Function2[String, js.Any, RawAction] =
+    (s: String, v: js.Any) => {
+      f(StringLens[G, S](s), v.asInstanceOf[S])
     }
 
   private def parserToRaw[A](f: Function2[String, Option[A], A]): js.Function2[String, js.UndefOr[js.Any], js.Any] =
