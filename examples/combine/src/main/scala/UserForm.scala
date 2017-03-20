@@ -20,7 +20,16 @@ object UserForm {
     val pass = ""
   }
 
-  val component =
+  // This is the preferred way to pass to Control components with
+  // incompatible props.
+  val mappedPasswordLengthMessage: NativeFunctionalComponent[Control.ProvidedProps[String]] =
+    MapProps(PasswordLengthMessage.component)
+      // String here is the type of model value
+      .native { (p: Control.ProvidedProps[String]) =>
+        PasswordLengthMessage.Props(p.value.length)
+      }
+
+  val component = {
     // Notice we pass the lens through props - so we always call
     // createElement for the same object, allowing React caching to
     // do its magic.
@@ -29,6 +38,7 @@ object UserForm {
         // We need full path here.
         lens
       ))(
+        // A non-standard component
         Control(Control.Props(
           GenLens[Main.State](_.deep.header),
           component = Some(Header.component)
@@ -42,7 +52,26 @@ object UserForm {
         <.label()("Password:"),
         Control(
           Control.Props(GenLens[UserForm.State](_.pass).partial),
+          // We can pass additional props to component
           vdom.Attrs(^.`type` := "password").toJs
+        )(),
+        Control(
+          Control.Props(
+            GenLens[UserForm.State](_.pass).partial,
+            component = Some(PasswordLengthMessage.component),
+            // This is a hacky way to map props. It works (for native components),
+            // but is inherently unsafe.
+            mapProps = Some(Map(
+              "length" -> ((p: Control.UnmappedProps[String]) => p.modelValue.length)
+            ))
+          )
+        )(),
+        Control(
+          Control.Props(
+            GenLens[UserForm.State](_.pass).partial,
+            // This is slightly better - no strings are not involved.
+            component = Some(mappedPasswordLengthMessage)
+          )
         )(),
         <.br()(),
         Control.button(Control.Props(GenLens[UserForm.State](_.user).partial))(
@@ -52,6 +81,7 @@ object UserForm {
         )("Submit")
       )
     }
+  }
 
   // This can be useful for comining components.
   val unscoped: Unscoped[UserForm.State, ReactDOMElement] =
