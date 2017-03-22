@@ -3,6 +3,7 @@ package eldis.redux.rrf.typed.macros
 
 import org.scalatest._
 import scalajs.js
+import js.annotation.ScalaJSDefined
 
 import eldis.redux.rrf
 import rrf.GenLens
@@ -22,6 +23,50 @@ class GenLensSpec extends FunSpec with Matchers {
       val fooxL = GenLens[Bar](_.foo.x)
       runSL(fooxL) shouldBe "foo.x"
     }
+
+    it("should support array access") {
+
+      val f = GenLensSpec.makeFixture
+      import f._
+
+      val simple = GenLens[js.Array[Int]](_(123))
+      runSL(simple) shouldBe "[123]"
+
+      val nested = GenLens[js.Array[js.Array[Int]]](_(123)(456))
+      runSL(nested) shouldBe "[123][456]"
+
+      val idx = 333
+      val dependent = GenLens[js.Array[Int]](_(idx))
+      runSL(dependent) shouldBe "[333]"
+
+      val combined1 = GenLens[Bar](_.bar(456))
+      runSL(combined1) shouldBe "bar[456]"
+
+      val combined2 = GenLens[js.Array[Foo]](_(456).x)
+      runSL(combined2) shouldBe "[456].x"
+    }
+
+    it("should support dictionary access") {
+
+      val f = GenLensSpec.makeFixture
+      import f._
+
+      val simple = GenLens[js.Dictionary[Int]](_("abc"))
+      runSL(simple) shouldBe "abc"
+
+      val nested = GenLens[js.Dictionary[js.Dictionary[Int]]](_("abc")("bcd"))
+      runSL(nested) shouldBe "abc.bcd"
+
+      val idx = "333"
+      val dependent = GenLens[js.Dictionary[Int]](_(idx))
+      runSL(dependent) shouldBe "333"
+
+      val combined1 = GenLens[Bar](_.baz("xyz"))
+      runSL(combined1) shouldBe "baz.xyz"
+
+      val combined2 = GenLens[js.Dictionary[Foo]](_("xyz").x)
+      runSL(combined2) shouldBe "xyz.x"
+    }
   }
 }
 
@@ -29,13 +74,16 @@ object GenLensSpec {
 
   def makeFixture = new Fixture()
 
-  @js.native
+  @ScalaJSDefined
   trait Foo extends js.Any {
-    def x: Int = js.native
+    def x: Int
   }
-  @js.native
+
+  @ScalaJSDefined
   trait Bar extends js.Any {
-    def foo: Foo = js.native
+    def foo: Foo
+    def bar: js.Array[Foo]
+    def baz: js.Dictionary[Foo]
   }
 
   class Fixture {

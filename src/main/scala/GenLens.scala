@@ -3,6 +3,8 @@ package eldis.redux.rrf
 import scala.reflect.macros.Context
 import scala.language.experimental.macros
 
+import scala.scalajs.js
+
 // Separate class for better syntax.
 
 final class GenLens[A] {
@@ -55,25 +57,62 @@ object GenLensMacros {
         val sl = reify { StringLens }
         q"$sl[$A, $B]($path)"
       case _ =>
-        c.abort(f.tree.pos, "Unsupported path shape")
+        c.abort(f.tree.pos, "GenLens argument is not a function")
     }
   }
 
-  private def makePath(c: Context)(argName: c.Symbol, body: c.Tree): String = {
-    def worker(tree: c.Tree): List[String] = {
-      import c.universe._
+  private def makePath(c: Context)(argName: c.Symbol, body: c.Tree): c.Tree = {
+    import c.universe._
+
+    type Fragment = Tree
+
+    val jsArrayT = weakTypeOf[js.Array[_]]
+    val jsDictionaryT = weakTypeOf[js.Dictionary[_]]
+
+    val intT = typeOf[Int]
+    val stringT = typeOf[String]
+
+    val wrapDictionaryM = typeOf[js.Any.type].member(TermName("wrapDictionary"))
+
+    // TODO: This is an unfold - refactor
+    def worker(tree: Tree): List[Fragment] = {
       tree match {
         case n @ Ident(s) if n.symbol == argName =>
           Nil
+
         case Select(rest, TermName(s)) =>
-          s :: worker(rest)
+          Literal(Constant(s)) :: worker(rest)
+
+        case Apply(
+          Select(rest, TermName("apply")),
+          List(idx)
+          ) if (rest.tpe <:< jsArrayT && idx.tpe <:< intT) =>
+          val fragment = q""" "[" + $idx.toString + "]" """
+          fragment :: worker(rest)
+
+        // For dictionaries we have to filter out the implicit conversion
+        case Apply(
+          Select(
+            Apply(
+              t,
+              List(rest)
+              ),
+            TermName("apply")
+            ),
+          List(idx)
+          ) if (
+          t.symbol == wrapDictionaryM &&
+          idx.tpe <:< stringT
+        ) =>
+          idx :: worker(rest)
+
         case _ =>
-          println(showRaw(tree))
-          c.abort(tree.pos, "Unsupported path shape")
+          c.abort(tree.pos, "Unsupported path shape: " + showCode(tree))
       }
     }
-
     // TODO: Empty path leads to empty string - is this OK?
-    worker(body).reverse.mkString(".")
+    worker(body).reverse
+      .reduceOption((a, b) => q"eldis.redux.rrf.StringLens.combinePaths($a, $b)")
+      .getOrElse(Literal(Constant("")))
   }
 }

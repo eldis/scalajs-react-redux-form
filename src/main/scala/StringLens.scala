@@ -91,7 +91,7 @@ object StringLens {
   def compose[A, B, C](f: StringLens[B, C], g: StringLens[A, B]): StringLens[A, C] =
     apply[A, C](combinePaths(run(g), run(f)))
 
-  private def combinePaths(a: String, b: String): String = (a, b) match {
+  private[rrf] def combinePaths(a: String, b: String): String = (a, b) match {
     case ("", b) => b
     case (a, "") => a
     case (a, b) if b.startsWith("[") => a + b
