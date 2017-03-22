@@ -13,4 +13,6 @@ package object raw {
 
   val Control = ReactReduxForm.Control
 
+  val Fieldset = ReactReduxForm.Fieldset
+
 }

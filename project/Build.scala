@@ -21,7 +21,7 @@ object ScalaJSReactReduxForm {
     val react = "~15.4.2"
     val redux = "~3.6.0"
     val reactRedux = "~5.0.2"
-    val reactReduxForm = "~1.5.3"
+    val reactReduxForm = "~1.8.1"
     val reduxLogger = "~2.7.4"
 
     val lodash = ">=4.4.2"

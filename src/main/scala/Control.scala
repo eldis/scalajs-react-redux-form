@@ -16,6 +16,7 @@ import react.vdom.{ Attrs }
 
 import raw.Control.{ ControlImpl => RawControlImpl }
 import raw.impl.{ Model => RawModel, Action => RawAction }
+import util.ModelType
 
 object Control {
 
@@ -81,28 +82,6 @@ object Control {
   }
 
   /**
-   * Magnet for smoother syntax
-   */
-  // TODO: global and partial lenses have differing origins
-  case class ModelType[A, B](
-    value: Either[ModelLens[A, B], ModelLens.Partial[A, B]]
-  )
-
-  object ModelType {
-    implicit def modelLensIsModelType[A, B](ml: ModelLens[A, B]): ModelType[A, B] =
-      ModelType[A, B](Left(ml))
-    implicit def partialModelLensIsModelType[A, B](pl: ModelLens.Partial[A, B]): ModelType[A, B] =
-      ModelType[A, B](Right(pl))
-    implicit def stringLensIsModelType[A, B](sl: StringLens[A, B]): ModelType[A, B] =
-      ModelType[A, B](Left(sl))
-    implicit def partialStringLensIsModelType[A, B](pl: StringLens.Partial[A, B]): ModelType[A, B] =
-      ModelType[A, B](Right(pl))
-
-    def run[A, B](t: ModelType[A, B]): RawModel =
-      t.value.fold(ModelLens.toRawModel, ModelLens.Partial.toRawModel)
-  }
-
-  /**
    * Props for [[Control]] component.
    *
    * @param model resolved relative to containing Form/Fieldset if
@@ -119,7 +98,9 @@ object Control {
     asyncValidators: Option[Map[String, AsyncValidator[S]]] = None,
     asyncValidateOn: Option[Set[EventHook]] = None,
     errors: Option[Map[String, Validator[S]]] = None,
-    parser: Option[Function2[String, Option[S], S]] = None,
+
+    // First argument is a new view value, second - a previous model value (if any)
+    parser: Option[Function2[_, Option[S], S]] = None,
 
     changeAction: Option[Function2[StringLens[G, S], S, A] forSome { type G }] = None,
     // This is provided separately for better API.
@@ -187,7 +168,7 @@ object Control {
       asyncValidators = props.asyncValidators.map(asyncFunctionMapToRaw),
       asyncValidateOn = props.asyncValidateOn.map(hooksToRaw),
       errors = props.errors.map(functionMapToRaw),
-      parser = props.parser.map(parserToRaw),
+      parser = props.parser.map(p => parserToRaw(p)),
       changeAction = props.changeAction.map(f => changeActionToRaw(f)),
       controlProps = controlProps,
       ignore = props.ignore.map(hooksToRaw),
@@ -229,9 +210,9 @@ object Control {
       f(StringLens[G, S](s), v.asInstanceOf[S])
     }
 
-  private def parserToRaw[A](f: Function2[String, Option[A], A]): js.Function2[String, js.UndefOr[js.Any], js.Any] =
-    (s: String, a: js.UndefOr[js.Any]) => {
-      f(s, a.asInstanceOf[js.UndefOr[A]].toOption)
+  private def parserToRaw[X, A](f: Function2[X, Option[A], A]): js.Function2[X, js.UndefOr[js.Any], js.Any] =
+    (x: X, a: js.UndefOr[js.Any]) => {
+      f(x, a.asInstanceOf[js.UndefOr[A]].toOption)
         .asInstanceOf[js.Any]
     }
 

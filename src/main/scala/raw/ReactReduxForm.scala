@@ -43,6 +43,53 @@ private[raw] object ReactReduxForm {
 
   }
 
+  object Fieldset {
+
+    import Impl._
+
+    object FieldsetImpl {
+
+      @ScalaJSDefined
+      trait Props extends js.Object {
+        val model: Model
+        val component: js.UndefOr[js.Any] = js.undefined
+      }
+
+      object Props {
+        def apply(
+          model: Model,
+          component: js.UndefOr[js.Any] = js.undefined
+        ) = {
+          val model0 = model
+          val component0 = component
+          new Props {
+            val model = model0
+            override val component = component0
+          }
+        }
+      }
+
+      @JSImport("react-redux-form", "Fieldset")
+      @js.native
+      object JSFieldset extends JSComponent[Props]
+    }
+
+    case class Props(
+      model: Model,
+      component: Option[js.Any] = None
+    )
+
+    def apply(props: Props)(children: ReactNode*) =
+      React.createElement(
+        FieldsetImpl.JSFieldset,
+        FieldsetImpl.Props(
+          props.model,
+          props.component.orUndefined
+        ),
+        children
+      )
+  }
+
   object Form {
 
     import Impl._
@@ -166,7 +213,7 @@ private[raw] object ReactReduxForm {
         val asyncValidators: js.UndefOr[js.Object] = js.undefined
         val asyncValidateOn: js.UndefOr[String | js.Array[String]] = js.undefined
         val errors: js.UndefOr[js.Object] = js.undefined
-        val parser: js.UndefOr[js.Function2[String, js.UndefOr[js.Any], js.Any]] =
+        val parser: js.UndefOr[js.Function2[_, js.UndefOr[js.Any], js.Any]] =
           js.undefined
 
         val changeAction: js.UndefOr[js.Function2[String, js.Any, Action]] = js.undefined
@@ -192,7 +239,7 @@ private[raw] object ReactReduxForm {
       asyncValidators: Option[js.Object] = None,
       asyncValidateOn: Option[String | js.Array[String]] = None,
       errors: Option[js.Object] = None,
-      parser: Option[js.Function2[String, js.UndefOr[js.Any], js.Any]] = None,
+      parser: Option[js.Function2[_, js.UndefOr[js.Any], js.Any]] = None,
       changeAction: Option[js.Function2[String, js.Any, Action]] = None,
       controlProps: Option[js.Object] = None,
       ignore: Option[String | js.Array[String]] = None,
