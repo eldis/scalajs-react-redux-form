@@ -3,6 +3,7 @@ package eldis.redux.rrf.examples.typed
 import scalajs.js
 import js.annotation.ScalaJSDefined
 import eldis.react._
+import eldis.react.util.ElementBuilder
 import vdom._
 import prefix_<^._
 
@@ -21,4 +22,9 @@ object CustomInput {
     )()
   }
 
+  def apply(): ElementBuilder[component.type, Props, Unit] = ElementBuilder(
+    component,
+    js.Dynamic.literal().asInstanceOf[Props],
+    ()
+  )
 }

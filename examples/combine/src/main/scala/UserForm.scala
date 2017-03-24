@@ -69,7 +69,7 @@ object UserForm {
         Control(
           Control.Props(
             GenLens[UserForm.State](_.pass).partial,
-            // This is slightly better - no strings are not involved.
+            // This is slightly better - no strings are involved.
             component = Some(mappedPasswordLengthMessage)
           )
         )(),

@@ -6,6 +6,7 @@ import eldis.react._
 import vdom.Style
 import vdom.prefix_<^._
 import eldis.redux.rrf._
+import eldis.redux.rrf.syntax._
 
 object UserForm {
 
@@ -25,11 +26,7 @@ object UserForm {
       GenLens[Main.State](_.testForm)
     ))(
       <.label()("Username:"),
-      Control(Control.Props(
-        // `.partial` makes the path relative to form model
-        GenLens[UserForm.State](_.user).partial,
-        component = Some(CustomInput.component)
-      ))(),
+      CustomInput().control(GenLens[UserForm.State](_.user).partial)("I am a child"),
       <.label()("Password:"),
       Control(
         Control.Props(GenLens[UserForm.State](_.pass).partial),
