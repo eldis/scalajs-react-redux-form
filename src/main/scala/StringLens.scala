@@ -11,8 +11,8 @@ import js.annotation._
  * and combinators. Uses a "phantom" trait to avoid confusion with
  * plain strings.
  *
- * All the model paths are assumed to be full. Local models can be
- * created via [[local]] method on companion object.
+ * All the model paths are assumed to be full. Partial models can be
+ * created via [[partial]] method on companion object.
  */
 @js.native
 sealed trait StringLens[A, B] extends js.Any
