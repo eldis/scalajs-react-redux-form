@@ -89,9 +89,12 @@ object StringLens {
 
   @inline
   def compose[A, B, C](f: StringLens[B, C], g: StringLens[A, B]): StringLens[A, C] =
-    apply[A, C](combinePaths(run(g), run(f)))
+    apply[A, C](combineRawPaths(run(g), run(f)))
 
-  private[rrf] def combinePaths(a: String, b: String): String = (a, b) match {
+  /**
+   * A raw combination utility. You probably shouldn't use this directly
+   */
+  def combineRawPaths(a: String, b: String): String = (a, b) match {
     case ("", b) => b
     case (a, "") => a
     case (a, b) if b.startsWith("[") => a + b

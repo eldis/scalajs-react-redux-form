@@ -112,7 +112,7 @@ object GenLensMacros {
     }
     // TODO: Empty path leads to empty string - is this OK?
     worker(body).reverse
-      .reduceOption((a, b) => q"eldis.redux.rrf.StringLens.combinePaths($a, $b)")
+      .reduceOption((a, b) => q"eldis.redux.rrf.StringLens.combineRawPaths($a, $b)")
       .getOrElse(Literal(Constant("")))
   }
 }
