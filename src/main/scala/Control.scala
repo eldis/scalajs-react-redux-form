@@ -117,7 +117,7 @@ object Control {
 
     def apply(props: Props[_, _ <: js.Object])(attrs: Attrs*): ReactNode = {
       val rawComponent = raw.Control.getStandardComponent(name)
-      val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs), Seq())
+      val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs))
       React.createElement(rawComponent, rawProps)
     }
   }
@@ -129,8 +129,8 @@ object Control {
 
       def apply(props: Props[_, _ <: js.Object])(attrs: Attrs*)(children: ReactNode*): ReactNode = {
         val rawComponent = raw.Control.getStandardComponent(name)
-        val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs), children.toJSArray)
-        React.createElement(rawComponent, rawProps)
+        val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs))
+        React.createElement(rawComponent, rawProps, children)
       }
     }
   }
@@ -153,11 +153,10 @@ object Control {
   def button = standardWithChildren("button")
   def reset = standardWithChildren("reset")
 
-  private def makeRawProps[S, A <: js.Object, P <: js.Object](
+  private[rrf] def makeRawProps[S, A <: js.Object, P](
     props: Props[S, A],
-    controlProps: Option[P],
-    children: Seq[ReactNode]
-  ): RawControlImpl.Props = {
+    controlProps: Option[P]
+  )(implicit P: P <:< js.Object): RawControlImpl.Props = {
     val props0 = raw.Control.Props(
       model = ModelType.run(props.model),
       component = props.component,
@@ -170,12 +169,12 @@ object Control {
       errors = props.errors.map(functionMapToRaw),
       parser = props.parser.map(p => parserToRaw(p)),
       changeAction = props.changeAction.map(f => changeActionToRaw(f)),
-      controlProps = controlProps,
+      controlProps = controlProps.map(P),
       ignore = props.ignore.map(hooksToRaw),
       disabled = props.disabled,
       getRef = props.getRef
     )
-    raw.Control.makeRawProps(props0, children)
+    raw.Control.makeRawProps(props0)
   }
 
   private def applyImpl[P <: js.Object](
@@ -183,7 +182,8 @@ object Control {
   )(children: Seq[ReactNode]) =
     React.createElement(
       RawControlImpl.JSControl,
-      makeRawProps(props, controlProps, children)
+      makeRawProps(props, controlProps),
+      children
     )
 
   private def hooksToRaw(hooks: Set[EventHook]): String | js.Array[String] =

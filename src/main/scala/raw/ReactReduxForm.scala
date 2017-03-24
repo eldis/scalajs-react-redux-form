@@ -252,7 +252,7 @@ private[raw] object ReactReduxForm {
 
       def apply(props: Props): ReactNode = {
         val rawComponent = getStandardComponent(name)
-        val rawProps = makeRawProps(props, Seq())
+        val rawProps = makeRawProps(props)
         React.createElement(rawComponent, rawProps)
       }
     }
@@ -264,7 +264,7 @@ private[raw] object ReactReduxForm {
 
         def apply(props: Props)(children: ReactNode*): ReactNode = {
           val rawComponent = getStandardComponent(name)
-          val rawProps = makeRawProps(props, children)
+          val rawProps = makeRawProps(props)
           React.createElement(rawComponent, rawProps)
         }
       }
@@ -273,7 +273,7 @@ private[raw] object ReactReduxForm {
     def apply(props: Props)(children: ReactNode*): ReactNode = {
       React.createElement(
         ControlImpl.JSControl,
-        makeRawProps(props, children)
+        makeRawProps(props)
       )
     }
 
@@ -289,10 +289,8 @@ private[raw] object ReactReduxForm {
     def reset = standardWithChildren("reset")
 
     private[rrf] def makeRawProps(
-      props: Props,
-      children: Seq[ReactNode]
+      props: Props
     ): ControlImpl.Props = {
-      val newControlProps = makeControlProps(props.controlProps, children)
       shrink(
         new ControlImpl.Props {
           override val model = props.model
@@ -306,37 +304,12 @@ private[raw] object ReactReduxForm {
           override val errors = props.errors.orUndefined
           override val parser = props.parser.orUndefined
           override val changeAction = props.changeAction.orUndefined
-          override val controlProps = newControlProps.orUndefined
+          override val controlProps = props.controlProps.orUndefined
           override val ignore = props.ignore.orUndefined
           override val disabled = props.disabled.orUndefined
           override val getRef = props.getRef.orUndefined
         }
       )
-    }
-
-    // Add "children" prop to an object.
-    // Isn't there a better solution?
-    private def makeControlProps[A <: js.Object](
-      baseControlProps: Option[A],
-      children: Seq[ReactNode]
-    ): Option[js.Object] = {
-      if (children.size == 0) {
-        baseControlProps
-      } else {
-        lazy val default = js.Dynamic.literal(
-          children = children.toJSArray
-        ).asInstanceOf[js.Object]
-
-        def inject(a: A): js.Object = {
-          val src = a.asInstanceOf[js.Dictionary[js.Any]]
-          assert(!src.get("children").isDefined)
-          src.updated("children", children.toJSArray)
-            .toJSDictionary
-            .asInstanceOf[js.Object]
-        }
-
-        Some(baseControlProps.fold(default)(inject))
-      }
     }
 
     // Removes `undefined` props from an object. Required since
