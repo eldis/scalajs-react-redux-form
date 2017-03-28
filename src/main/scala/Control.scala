@@ -16,7 +16,7 @@ import react.vdom.{ Attrs }
 
 import raw.Control.{ ControlImpl => RawControlImpl }
 import raw.impl.{ Model => RawModel, Action => RawAction }
-import util.ModelType
+import util.{ ModelType, shrink }
 
 object Control {
 
@@ -138,7 +138,9 @@ object Control {
   def apply[P <: js.Object](
     props: Props[_, _ <: js.Object], controlProps: P
   )(children: ReactNode*): ReactNode =
-    applyImpl(props, Some(controlProps))(children)
+    // Shrinking controlProps should be handled at the top level -
+    // in case we ever decide we need the undefined own properties back.
+    applyImpl(props, Some(shrink(controlProps)))(children)
 
   def apply(props: Props[_, _ <: js.Object])(children: ReactNode*): ReactNode =
     applyImpl(props, None)(children)

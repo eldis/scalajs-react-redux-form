@@ -8,7 +8,7 @@ import eldis.react.NativeComponentType
 import eldis.react.util.{ ElementBuilder }
 import eldis.redux.rrf.Control
 import eldis.redux.rrf.raw.Control.{ ControlImpl => RawControlImpl }
-import eldis.redux.rrf.util.ModelType
+import eldis.redux.rrf.util.{ ModelType, shrink }
 
 final class ControlOps[C, P, CH](val self: ElementBuilder[C, P, CH])(
     // No wrapping here - we need the component to be native
@@ -24,7 +24,9 @@ final class ControlOps[C, P, CH](val self: ElementBuilder[C, P, CH])(
     RawControlImpl.JSControl,
     Control.makeRawProps(
       Control.Props(model, component = Some(C(self.component))),
-      Some(self.props)
+      // Shrinking controlProps should be handled at the top level -
+      // in case we ever decide we need the undefined own properties back.
+      Some(shrink(self.props))
     ),
     self.children
   )

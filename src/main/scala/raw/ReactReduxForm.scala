@@ -12,6 +12,8 @@ import org.scalajs.dom.Node
 
 import eldis.redux._
 
+import eldis.redux.rrf.util.shrink
+
 private[raw] object ReactReduxForm {
 
   @JSImport("react-redux-form", JSImport.Namespace)
@@ -311,14 +313,6 @@ private[raw] object ReactReduxForm {
         }
       )
     }
-
-    // Removes `undefined` props from an object. Required since
-    // `{}` and `{ foo: undefined }` are not equivalent.
-    private def shrink[A <: js.Object](x: A): A =
-      x.asInstanceOf[js.Dictionary[js.Any]]
-        .filter { case (_, v) => js.undefined != v }
-        .dict
-        .asInstanceOf[A]
 
     private def standard(n: String): StandardControl = new StandardControl {
       def name = n
