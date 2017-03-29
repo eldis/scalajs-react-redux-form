@@ -1,6 +1,7 @@
 package eldis.redux.rrf.raw
 
 import eldis.react._
+import eldis.react.util.ElementBuilder
 import vdom.Attrs
 
 import scala.scalajs.js
@@ -249,26 +250,15 @@ private[raw] object ReactReduxForm {
       getRef: Option[Node => Unit] = None
     )
 
-    sealed trait StandardControl {
+    sealed trait StandardControl[F[_]] {
       def name: String
 
-      def apply(props: Props): ReactNode = {
+      def F: NativeComponentType.WithChildren[ControlImpl.Props] <:< F[ControlImpl.Props]
+
+      def apply(props: Props): ElementBuilder[F[ControlImpl.Props], ControlImpl.Props, Unit] = {
         val rawComponent = getStandardComponent(name)
         val rawProps = makeRawProps(props)
-        React.createElement(rawComponent, rawProps)
-      }
-    }
-
-    object StandardControl {
-
-      sealed trait WithChildren {
-        def name: String
-
-        def apply(props: Props)(children: ReactNode*): ReactNode = {
-          val rawComponent = getStandardComponent(name)
-          val rawProps = makeRawProps(props)
-          React.createElement(rawComponent, rawProps)
-        }
+        ElementBuilder(F(rawComponent), rawProps)
       }
     }
 
@@ -314,13 +304,16 @@ private[raw] object ReactReduxForm {
       )
     }
 
-    private def standard(n: String): StandardControl = new StandardControl {
-      def name = n
-    }
-
-    private def standardWithChildren(n: String): StandardControl.WithChildren =
-      new StandardControl.WithChildren {
+    private def standard(n: String): StandardControl[NativeComponentType] =
+      new StandardControl[NativeComponentType] {
         def name = n
+        def F = implicitly
+      }
+
+    private def standardWithChildren(n: String): StandardControl[NativeComponentType.WithChildren] =
+      new StandardControl[NativeComponentType.WithChildren] {
+        def name = n
+        def F = implicitly
       }
 
     private[rrf] def getStandardComponent(name: String) =
