@@ -116,14 +116,16 @@ object Control {
   sealed trait StandardControl[F[_]] {
     def name: String
 
-    def F: NativeComponentType.WithChildren[RawControlImpl.Props] <:< F[RawControlImpl.Props]
+    def evidence: NativeComponentType.WithChildren[RawControlImpl.Props] <:< F[RawControlImpl.Props]
+
+    def component: F[RawControlImpl.Props] =
+      evidence(raw.Control.getStandardComponent(name))
 
     def apply(props: Props[_, _ <: js.Object])(
       attrs: Attrs*
     ): ElementBuilder[F[RawControlImpl.Props], RawControlImpl.Props, Unit] = {
-      val rawComponent = raw.Control.getStandardComponent(name)
       val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs))
-      ElementBuilder(F(rawComponent), rawProps)
+      ElementBuilder(component, rawProps)
     }
   }
 
@@ -213,12 +215,12 @@ object Control {
   private def standard(n: String): StandardControl[NativeComponentType] =
     new StandardControl[NativeComponentType] {
       def name = n
-      def F = implicitly
+      def evidence = implicitly
     }
 
   private def standardWithChildren(n: String): StandardControl[NativeComponentType.WithChildren] =
     new StandardControl[NativeComponentType.WithChildren] {
       def name = n
-      def F = implicitly
+      def evidence = implicitly
     }
 }

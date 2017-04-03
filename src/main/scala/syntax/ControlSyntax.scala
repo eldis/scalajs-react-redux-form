@@ -33,11 +33,12 @@ final class ControlOps[C, P, CH](val self: ElementBuilder[C, P, CH])(
       self.children
     )
 
-  def checkboxControl[S](
+  def control[F[_], S](
+    standard: Control.StandardControl[F],
     model: ModelType[_, S]
-  ): ElementBuilder[NativeComponentType.WithChildren[RawControlImpl.Props], RawControlImpl.Props, CH] =
+  ): ElementBuilder[F[RawControlImpl.Props], RawControlImpl.Props, CH] =
     ElementBuilder(
-      RawControl.getStandardComponent("checkbox"),
+      standard.component,
       Control.makeRawProps(
         Control.Props(model, component = Some(C(self.component))),
         // Shrinking controlProps should be handled at the top level -
@@ -46,6 +47,16 @@ final class ControlOps[C, P, CH](val self: ElementBuilder[C, P, CH])(
       ),
       self.children
     )
+
+  def checkboxControl[S](
+    model: ModelType[_, S]
+  ): ElementBuilder[NativeComponentType[RawControlImpl.Props], RawControlImpl.Props, CH] =
+    this.control(Control.checkbox, model)
+
+  def radioControl[S](
+    model: ModelType[_, S]
+  ): ElementBuilder[NativeComponentType[RawControlImpl.Props], RawControlImpl.Props, CH] =
+    this.control(Control.radio, model)
 }
 
 trait ControlSyntax {
