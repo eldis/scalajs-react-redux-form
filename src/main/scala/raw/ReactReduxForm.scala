@@ -250,15 +250,13 @@ private[raw] object ReactReduxForm {
       getRef: Option[Node => Unit] = None
     )
 
-    sealed trait StandardControl[F[_]] {
+    sealed trait StandardControl {
       def name: String
 
-      def F: NativeComponentType.WithChildren[ControlImpl.Props] <:< F[ControlImpl.Props]
-
-      def apply(props: Props): ElementBuilder[F[ControlImpl.Props], ControlImpl.Props, Unit] = {
+      def apply(props: Props): ElementBuilder[NativeComponentType.WithChildren[ControlImpl.Props], ControlImpl.Props, Unit] = {
         val rawComponent = getStandardComponent(name)
         val rawProps = makeRawProps(props)
-        ElementBuilder(F(rawComponent), rawProps)
+        ElementBuilder(rawComponent, rawProps)
       }
     }
 
@@ -276,9 +274,9 @@ private[raw] object ReactReduxForm {
     def radio = standard("radio")
     def checkbox = standard("checkbox")
     def file = standard("file")
-    def select = standardWithChildren("select")
-    def button = standardWithChildren("button")
-    def reset = standardWithChildren("reset")
+    def select = standard("select")
+    def button = standard("button")
+    def reset = standard("reset")
 
     private[rrf] def makeRawProps(
       props: Props
@@ -304,16 +302,9 @@ private[raw] object ReactReduxForm {
       )
     }
 
-    private def standard(n: String): StandardControl[NativeComponentType] =
-      new StandardControl[NativeComponentType] {
+    private def standard(n: String): StandardControl =
+      new StandardControl {
         def name = n
-        def F = implicitly
-      }
-
-    private def standardWithChildren(n: String): StandardControl[NativeComponentType.WithChildren] =
-      new StandardControl[NativeComponentType.WithChildren] {
-        def name = n
-        def F = implicitly
       }
 
     private[rrf] def getStandardComponent(name: String) =

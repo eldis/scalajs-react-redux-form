@@ -113,17 +113,15 @@ object Control {
     getRef: Option[Node => Unit] = None
   )
 
-  sealed trait StandardControl[F[_]] {
+  sealed trait StandardControl {
     def name: String
 
-    def evidence: NativeComponentType.WithChildren[RawControlImpl.Props] <:< F[RawControlImpl.Props]
-
-    def component: F[RawControlImpl.Props] =
-      evidence(raw.Control.getStandardComponent(name))
+    def component: NativeComponentType.WithChildren[RawControlImpl.Props] =
+      raw.Control.getStandardComponent(name)
 
     def apply(props: Props[_, _ <: js.Object])(
       attrs: Attrs*
-    ): ElementBuilder[F[RawControlImpl.Props], RawControlImpl.Props, Unit] = {
+    ): ElementBuilder[NativeComponentType.WithChildren[RawControlImpl.Props], RawControlImpl.Props, Unit] = {
       val rawProps = makeRawProps(props, Some(Attrs.concat(attrs).toJs))
       ElementBuilder(component, rawProps)
     }
@@ -145,9 +143,9 @@ object Control {
   def radio = standard("radio")
   def checkbox = standard("checkbox")
   def file = standard("file")
-  def select = standardWithChildren("select")
-  def button = standardWithChildren("button")
-  def reset = standardWithChildren("reset")
+  def select = standard("select")
+  def button = standard("button")
+  def reset = standard("reset")
 
   private[rrf] def makeRawProps[S, A <: js.Object, P](
     props: Props[S, A],
@@ -212,15 +210,8 @@ object Control {
         .asInstanceOf[js.Any]
     }
 
-  private def standard(n: String): StandardControl[NativeComponentType] =
-    new StandardControl[NativeComponentType] {
+  private def standard(n: String): StandardControl =
+    new StandardControl {
       def name = n
-      def evidence = implicitly
-    }
-
-  private def standardWithChildren(n: String): StandardControl[NativeComponentType.WithChildren] =
-    new StandardControl[NativeComponentType.WithChildren] {
-      def name = n
-      def evidence = implicitly
     }
 }

@@ -33,10 +33,13 @@ final class ControlOps[C, P, CH](val self: ElementBuilder[C, P, CH])(
       self.children
     )
 
-  def control[F[_], S](
-    standard: Control.StandardControl[F],
+  def control[S](
+    standard: Control.StandardControl,
     model: ModelType[_, S]
-  ): ElementBuilder[F[RawControlImpl.Props], RawControlImpl.Props, CH] =
+  ): ElementBuilder[ // TODO: this should only allow children if `C` does so.
+  // This would require using ComponentLike to get to `C`'s type
+  // information regarding children.
+  NativeComponentType.WithChildren[RawControlImpl.Props], RawControlImpl.Props, CH] =
     ElementBuilder(
       standard.component,
       Control.makeRawProps(
@@ -50,12 +53,12 @@ final class ControlOps[C, P, CH](val self: ElementBuilder[C, P, CH])(
 
   def checkboxControl[S](
     model: ModelType[_, S]
-  ): ElementBuilder[NativeComponentType[RawControlImpl.Props], RawControlImpl.Props, CH] =
+  ): ElementBuilder[NativeComponentType.WithChildren[RawControlImpl.Props], RawControlImpl.Props, CH] =
     this.control(Control.checkbox, model)
 
   def radioControl[S](
     model: ModelType[_, S]
-  ): ElementBuilder[NativeComponentType[RawControlImpl.Props], RawControlImpl.Props, CH] =
+  ): ElementBuilder[NativeComponentType.WithChildren[RawControlImpl.Props], RawControlImpl.Props, CH] =
     this.control(Control.radio, model)
 }
 
